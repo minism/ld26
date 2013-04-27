@@ -5,6 +5,7 @@ require 'math'
 Block = PhysEntity:extend()
 
 function Block:init(data)
+    self.block = true
     self.color = 1
 
     getmetatable(Block).init(self, data)
@@ -14,29 +15,6 @@ function Block:draw()
     getmetatable(Block).draw(self)
     colors['block_' .. self.color]()
     sprite.drawSprite(1, self.x, self.y)
-end
-
-function Block:update(dt)
-    getmetatable(Block).update(self, dt)
-
-    -- Check if we passed through a block or the world floor
-    -- if self.awake then
-    --     local highest_block = game:getHighestBlock(self:getColumn())
-    --     if highest_block then
-    --         if self.last_y + self.h <= highest_block.y and self.y + self.h > highest_block.y then
-    --             game:trigger('block_land', self, highest_block)
-    --         end
-    --     else
-    --         local floor_y = WORLD_H
-    --         if self.last_y + self.h <= floor_y and self.y + self.h > floor_y then
-    --             game:trigger('block_land', self)
-    --         end
-    --     end
-    -- end
-end
-
-function Block:getColumn()
-    return math.floor(self.x / BLOCK_SIZE) + 1
 end
 
 

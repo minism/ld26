@@ -85,12 +85,12 @@ function PhysEntity:step(dt)
             local l, t, r, b = entity:getbb()
 
             -- Check x axis collisions
-            if self.y + self.h > t and self.y < b then
+            if overlaps(self.y, self.y + self.h, t, b) then
                 if self.x + self.w <= l and nx + self.w > l then
                     nx = l - self.w
                     self:collided(entity, LEFT)
                     self.velx = 0
-                elseif self.x > r and nx <= r then
+                elseif self.x >= r and nx < r then
                     nx = r
                     self:collided(entity, RIGHT)
                     self.velx = 0
@@ -98,13 +98,13 @@ function PhysEntity:step(dt)
             end
 
             -- Check y axis collisions
-            if self.x + self.w > l and self.x < r then
+            if overlaps(self.x, self.x + self.w, l, r) then
                 if self.y + self.h <= t and ny + self.h > t then
                     ny = t - self.h
                     self:collided(entity, TOP)
                     self.vely = 0
                     self.grounded = true
-                elseif self.y > b and ny <= b then
+                elseif self.y >= b and ny < b then
                     ny = b
                     self:collided(entity, BOTTOM)
                     self.vely = 0

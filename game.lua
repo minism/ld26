@@ -43,15 +43,11 @@ function game:init()
     -- Runtime state flags
     self.flags = {
         debug = true,
-        showbb = true,
+        showbb = false,
     }
 
     -- Setup main game data
     self.entities = {}
-    self.blocks = {}
-    for i=1, WORLD_BLOCKS_X do
-        self.blocks[i] = {}
-    end
     self:setStaticBlocks()
 
     -- Position player
@@ -60,6 +56,7 @@ function game:init()
 
 
     -- DEBUG
+    -- self:queueBlock({pos=1})
     self:queueBlock()
     time:every(0.75, function() self:queueBlock() end)
 end
@@ -76,6 +73,20 @@ function game:setStaticBlocks()
         local static_block_bot = PhysEntity {
             x=i*BLOCK_SIZE,
             y=WORLD_H,
+            awake = false,
+        }
+        game:addEntity(static_block_top)
+        game:addEntity(static_block_bot)
+    end
+    for i=-1, WORLD_BLOCKS_Y do
+        local static_block_top = PhysEntity {
+            y=i*BLOCK_SIZE,
+            x=-BLOCK_SIZE,
+            awake = false,
+        }
+        local static_block_bot = PhysEntity {
+            y=i*BLOCK_SIZE,
+            x=WORLD_W,
             awake = false,
         }
         game:addEntity(static_block_top)
@@ -120,37 +131,18 @@ end
 
 
 function game:getHighestBlock(column)
-    for row=1, WORLD_BLOCKS_Y do
-        if self.blocks[column][row] ~= nil then
-            return self.blocks[column][row]
+    local x = (column - 1) * BLOCK_SIZE + 1
+    for row=0, WORLD_BLOCKS_Y-1 do
+        local y = row*BLOCK_SIZE
+        for i, entity in ipairs(self.entities) do
+            if entity.block and entity.grounded then
+                local a,b,c,d = entity:getbb()
+                if rect.contains(a,b,c,d,x,y) then
+                    return entity
+                end
+            end
         end
     end
-end
-
-
-
---
--- Event handling
---
-
-function game:trigger(event, ...)
-    if self['evt_' .. event] ~= nil then
-        self['evt_' .. event](self, ...)
-    end
-end
-
-function game:evt_block_land(block, target)
-    -- Freeze block and add to index
-    block.awake = false
-    local new_x, new_y = snap_floor(block.x, BLOCK_SIZE), nil
-    if target then
-        new_y = target.y - BLOCK_SIZE
-    else
-        new_y = snap_floor(block.y, BLOCK_SIZE)
-    end
-    block.x, block.y = new_x, new_y
-    local col, row = block.x / BLOCK_SIZE + 1, block.y / BLOCK_SIZE + 1
-    self.blocks[col][row] = block
 end
 
 
