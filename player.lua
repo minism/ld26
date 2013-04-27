@@ -16,7 +16,14 @@ end
 
 
 function player:updateVectors(dt)
+    if input.down('jump') and self.grounded then
+        self.grounded = false
+        self.vely = -JUMP_POWER
+    end
+
     self.vely = self.vely + GRAVITY * dt
+
+
     if input.down('left') then
         self.velx = -MOVE_SPEED
     elseif input.down('right') then
