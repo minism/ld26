@@ -6,6 +6,7 @@ require 'input'
 require 'player'
 require 'entity'
 require 'block'
+require 'input'
 
 game = leaf.Context()
 
@@ -23,7 +24,9 @@ CAMERA_SCALE = 3
 SCREEN_W = 600 / CAMERA_SCALE
 SCREEN_H = 800 / CAMERA_SCALE
 BLOCK_TIMER = 1
-GRAVITY = 300
+GRAVITY = 350
+MOVE_SPEED = 55
+JUMP_POWER = 125
 
 
 
@@ -148,12 +151,6 @@ function game:update(dt)
 
     -- Update player
     player:update(dt)
-end
-
-
-function game:keypressed(key, unicode)
-    -- Handle player movement
-    
 end
 
 
