@@ -17,15 +17,18 @@ end
 -- Other aliases
 lg = love.graphics
 
-
-require 'game'
+-- Singletons
+app = App()
+console = Console()
+time = Time()
+colors = require 'colors'
 
 
 function love.load()
     -- Seed randomness
     math.randomseed(os.time()); math.random()
-    app = App()
-    console = Console()
+
+    require 'game'
     app:bind()
     app:pushContext(game)
     game:init()
