@@ -28,6 +28,8 @@ GRAVITY = 350
 MOVE_SPEED = 55
 JUMP_POWER = 125
 
+LEFT, TOP, RIGHT, BOTTOM = 0, 1, 2, 3
+
 
 
 --
@@ -41,6 +43,7 @@ function game:init()
     -- Runtime state flags
     self.flags = {
         debug = true,
+        showbb = true,
     }
 
     -- Setup main game data
@@ -49,15 +52,36 @@ function game:init()
     for i=1, WORLD_BLOCKS_X do
         self.blocks[i] = {}
     end
+    self:setStaticBlocks()
 
     -- Position player
     player.x = 0
     player.y = WORLD_H - BLOCK_SIZE
 
-    -- self:queueBlock()
-    -- time:every(0.75, function() self:queueBlock() end)
+
+    -- DEBUG
+    self:queueBlock()
+    time:every(0.75, function() self:queueBlock() end)
 end
 
+
+-- Insert static border blocks for world edge collision
+function game:setStaticBlocks()
+    for i=-1, WORLD_BLOCKS_X do
+        local static_block_top = PhysEntity {
+            x=i*BLOCK_SIZE,
+            y=-BLOCK_SIZE,
+            awake = false,
+        }
+        local static_block_bot = PhysEntity {
+            x=i*BLOCK_SIZE,
+            y=WORLD_H,
+            awake = false,
+        }
+        game:addEntity(static_block_top)
+        game:addEntity(static_block_bot)
+    end
+end
 
 
 
@@ -153,6 +177,15 @@ function game:update(dt)
     player:update(dt)
 end
 
+function game:keypressed(key, unicode)
+    if input.match('debug', key) then
+        self.flags.debug = not self.flags.debug
+    end
+
+    if input.match('showbb', key) then
+        self.flags.showbb = not self.flags.showbb
+    end
+end
 
 
 
