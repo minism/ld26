@@ -23,8 +23,8 @@ WORLD_H = BLOCK_SIZE * WORLD_BLOCKS_Y
 CAMERA_SCALE = 3
 SCREEN_W = 600 / CAMERA_SCALE
 SCREEN_H = 800 / CAMERA_SCALE
-BLOCK_TIMER = 1
-GRAVITY = 350
+BLOCK_TIMER = 0.5
+GRAVITY = 300
 MOVE_SPEED = 60
 JUMP_POWER = 150
 
@@ -46,20 +46,28 @@ function game:init()
         showbb = false,
     }
 
+    game:initWorld()
+end
+
+
+function game:initWorld()
+    time:empty()
+
     -- Setup main game data
     self.entities = {}
     self:setStaticBlocks()
 
     -- Position player
+    player:reset()
     player.x = 0
-    player.y = WORLD_H - BLOCK_SIZE
-
+    player.y = WORLD_H - player.h
 
     -- DEBUG
     -- self:queueBlock({pos=1})
     self:queueBlock()
-    time:every(0.75, function() self:queueBlock() end)
+    time:every(BLOCK_TIMER, function() self:queueBlock() end)
 end
+
 
 
 -- Insert static border blocks for world edge collision
@@ -165,7 +173,6 @@ function game:update(dt)
         entity:update(dt)
     end
 
-    -- Update player
     player:update(dt)
 end
 
@@ -173,9 +180,11 @@ function game:keypressed(key, unicode)
     if input.match('debug', key) then
         self.flags.debug = not self.flags.debug
     end
-
     if input.match('showbb', key) then
         self.flags.showbb = not self.flags.showbb
+    end
+    if input.match('init', key) then
+        game:initWorld()
     end
 end
 
@@ -205,12 +214,15 @@ function game:drawWorld()
     -- Draw level background
     sprite.drawWorldBackground(2, 0, 0)
 
-    -- Draw entities
-    for i, entity in ipairs(self.entities) do
-        entity:draw()
+    -- Draw entities sorted by z index
+    for z=0, 3 do
+        for i, entity in ipairs(self.entities) do
+            if entity.z_index == z then
+                entity:draw()
+            end
+        end
     end
-
-    -- Draw player
+    
     player:draw()
 end
 

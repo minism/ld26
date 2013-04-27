@@ -18,6 +18,12 @@ function Block:draw()
 end
 
 
+function Block:collideWith(target, side)
+    if target == player and side == TOP then
+        player.headblock = self
+    end
+end
+
 
 
 

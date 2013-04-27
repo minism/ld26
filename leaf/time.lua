@@ -110,6 +110,12 @@ function Time:init()
     self.timers = {}
 end
 
+function Time:empty()
+    for i, timer in ipairs(self.timers) do
+        self.timers[i] = nil
+    end
+end
+
 
 -- Update time system -- this must be called from main loop
 function Time:update(dt)

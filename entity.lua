@@ -17,6 +17,7 @@ function Entity:init(data)
     self.h = BLOCK_SIZE
     self.w = BLOCK_SIZE
     self.alive = true
+    self.z_index = 0
 
     getmetatable(Entity).init(self, data)
 end
@@ -35,6 +36,7 @@ end
 PhysEntity = Entity:extend()
 
 function PhysEntity:init(data)
+    self.collision = true
     self.solid = true
     self.awake = true
     self.last_x = 0
@@ -81,43 +83,60 @@ function PhysEntity:step(dt)
 
     -- Check entity collision
     for i, entity in ipairs(game.entities) do
-        if entity ~= self and entity.solid then
-            local l, t, r, b = entity:getbb()
-
-            -- Check x axis collisions
-            if overlaps(self.y, self.y + self.h, t, b) then
-                if self.x + self.w <= l and nx + self.w > l then
-                    nx = l - self.w
-                    self:collided(entity, LEFT)
-                    self.velx = 0
-                elseif self.x >= r and nx < r then
-                    nx = r
-                    self:collided(entity, RIGHT)
-                    self.velx = 0
-                end
-            end
-
-            -- Check y axis collisions
-            if overlaps(self.x, self.x + self.w, l, r) then
-                if self.y + self.h <= t and ny + self.h > t then
-                    ny = t - self.h
-                    self:collided(entity, TOP)
-                    self.vely = 0
-                    self.grounded = true
-                elseif self.y >= b and ny < b then
-                    ny = b
-                    self:collided(entity, BOTTOM)
-                    self.vely = 0
-                end
-            end
+        if entity ~= self and entity.collision then
+            nx, ny = self:projectCollision(nx, ny, entity)
         end
     end
+
+    -- Check player collision
+    nx, ny = self:projectCollision(nx, ny, player)
 
     -- Set new position after collision
     self.x = nx
     self.y = ny
 end
 
-function PhysEntity:collided(entity, direction)
+function PhysEntity:projectCollision(nx, ny, entity)
+    local l, t, r, b = entity:getbb()
 
+    -- Check x axis collisions
+    if overlaps(self.y, self.y + self.h, t, b) then
+        if self.x + self.w <= l and nx + self.w > l then
+            if entity.solid then
+                nx = l - self.w
+                self.velx = 0
+            end
+            self:collideWith(entity, LEFT)
+        elseif self.x >= r and nx < r then
+            if entity.solid then
+                nx = r
+                self.velx = 0
+            end
+            self:collideWith(entity, RIGHT)
+        end
+    end
+
+    -- Check y axis collisions
+    if overlaps(self.x, self.x + self.w, l, r) then
+        if self.y + self.h <= t and ny + self.h > t then
+            if entity.solid then
+                ny = t - self.h
+                self.vely = 0
+                self.grounded = true
+            end
+            self:collideWith(entity, TOP)
+        elseif self.y >= b and ny < b then
+            if entity.solid then
+                ny = b
+                self.vely = 0
+            end
+            self:collideWith(entity, BOTTOM)
+        end
+    end
+
+    return nx, ny
+end
+
+
+function PhysEntity:collideWith(target, side)
 end
