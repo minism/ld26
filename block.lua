@@ -1,0 +1,2 @@
+Block = Entity:extend()
+
