@@ -4,9 +4,15 @@ require 'math'
 
 Block = PhysEntity:extend()
 
+function Block:init(data)
+    self.color = 1
+
+    getmetatable(Block).init(self, data)
+end
 
 function Block:draw()
     getmetatable(Block).draw(self)
+    colors['block_' .. self.color]()
     sprite.drawSprite(1, self.x, self.y)
 end
 
@@ -58,6 +64,8 @@ end
 
 function BlockHint:draw()
     getmetatable(BlockHint).draw(self)
+
+    colors.white()
     if self.ts % self.flash_speed > self.flash_speed / 2 then
         sprite.drawSprite(9, self.x, self.y)
     end

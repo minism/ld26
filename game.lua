@@ -47,8 +47,12 @@ function game:init()
         self.blocks[i] = {}
     end
 
-    self:queueBlock()
-    time:every(0.75, function() self:queueBlock() end)
+    -- Position player
+    player.x = 0
+    player.y = WORLD_H - BLOCK_SIZE
+
+    -- self:queueBlock()
+    -- time:every(0.75, function() self:queueBlock() end)
 end
 
 
@@ -141,11 +145,15 @@ function game:update(dt)
     for i, entity in ipairs(self.entities) do
         entity:update(dt)
     end
+
+    -- Update player
+    player:update(dt)
 end
 
 
 function game:keypressed(key, unicode)
-
+    -- Handle player movement
+    
 end
 
 
@@ -173,16 +181,20 @@ end
 
 function game:drawWorld()
     -- Draw level background
-    sprite.drawWorldBackground(2, 0, 0, 0)
+    sprite.drawWorldBackground(2, 0, 0)
 
     -- Draw entities
     for i, entity in ipairs(self.entities) do
         entity:draw()
     end
+
+    -- Draw player
+    player:draw()
 end
 
 
-function game:drawHUD()
+function game:drawHUD()    
+    colors.white()
     if self.flags.debug then
         lg.print("FPS: " .. love.timer.getFPS(), 5, 5)
         lg.print("#Timers: " .. #time.timers, 5, 15)
