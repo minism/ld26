@@ -85,11 +85,11 @@ function game:loadPhase(phasen)
     self.clears = 0
 
     if self.phase.pushrate then
-        game:queuePush()
+        time:after(self.phase.pushrate[1], function() self:queuePush() end)
     end
 
     if self.phase.droprate then
-        game:queueDrop()
+        time:after(self.phase.droprate[1], function() self:queueDrop() end)
     end
 end
 
@@ -238,9 +238,13 @@ function game:queuePush()
         self:pushColumns() 
         faller.alive = false
     end)
+
+    local queue_phase = self.phasen
     if self.phase.pushrate then
         time:after(math.random(unpack(self.phase.pushrate)), function()
-            self:queuePush()
+            if self.phasen == queue_phase then
+                self:queuePush()
+            end
         end)
     end
 end
@@ -345,9 +349,12 @@ function game:queueDrop(data)
     end)
 
 
+    local queue_phase = self.phasen
     if self.phase.droprate then
         time:after(math.random(unpack(self.phase.droprate)), function()
-            self:queueDrop()
+            if self.phasen == queue_phase then
+                self:queueDrop()
+            end
         end)
     end
 end
