@@ -23,7 +23,7 @@ function Entity:init(data)
     self.anim_size = 1
     self.anim_timer = 0
     self.anim_frame = 0
-    self.anim_speed = 1 / 24
+    self.anim_speed = 1 / 12
 
     getmetatable(Entity).init(self, data)
 end
@@ -55,8 +55,12 @@ function Entity:draw()
     lg.setColor(self:getColor())
 
     if type(self.sprite) == 'number' then
-        sprite.drawSprite(self.sprite + self.anim_frame, self.x, self.y)
+        sprite.drawSprite(self:spriteFrame(), self.x, self.y)
     end
+end
+
+function Entity:spriteFrame()
+    return self.sprite + self.anim_frame
 end
 
 function Entity:getcr()

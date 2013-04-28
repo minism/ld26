@@ -2,15 +2,24 @@ require 'entity'
 
 player = PhysEntity()
 
-player.w = 12
-player.h = 12
+player.w = 8
+player.h = 16
 player.grounded = true
 player.vely = 0
 player.solid = false
 player.z_index = 1
 
+local IDLE, RUNNING = 0, 1
+
+
 function player:reset()
     self.headblock = nil
+    self:setAnimation(IDLE)
+end
+
+function player:setAnimation(state)
+    self.sprite = 18
+    self.anim_size = 6
 end
 
 
@@ -21,7 +30,7 @@ function player:draw()
         sprite.drawSprite(self.holding.sprite, self.x, self.y)
         sprite.drawSprite(17, self.x + 2, self.y + BLOCK_SIZE)
     else
-        sprite.drawSprite(17, self.x, self.y)
+        sprite.drawSprite(self:spriteFrame(), self.x, self.y)
     end
 end
 
