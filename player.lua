@@ -183,6 +183,12 @@ function player:update(dt)
     end
 end
 
+function player:collideWith(target)
+    if target.enemy then
+        self:die()
+    end
+end
+
 function player:liftBlock(block)
     game:sound 'grab'
     self.y = self.y + block.h
@@ -214,6 +220,7 @@ function player:throwBlock()
     self.holding = nil
     block.x = self.x - (block.w - self.w) / 2
     block.y = self.y - block.h
+    block.thrown = true
 
     -- Throw at 45 degree angle
     local vec = vector(0, -1)

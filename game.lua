@@ -644,7 +644,7 @@ function game:keypressed(key, unicode)
         self.flags.blockmap = not self.flags.blockmap
     end
     if input.match('init', key) then
-        game:loadPhase(1)
+        -- game:loadPhase(1)
     end
 end
 

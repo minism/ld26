@@ -6,6 +6,7 @@ Block = PhysEntity:extend()
 
 function Block:init(data)
     self.rested = false
+    self.thrown = false
     self.block = true
     self.chaining = false
     self.color = game:randomColor()
@@ -21,6 +22,7 @@ function Block:update(dt)
     if self.grounded and self.velx == 0 and self.vely == 0 and not self.rested then
         -- Block is rested for the first time
         self.rested = true
+        self.thrown = false
         game:blockRested(self)
     elseif not self.grounded then
         game:unsetBlock(self)
@@ -37,6 +39,8 @@ function Block:collideWith(target, side)
         game:sound('drop')
     elseif target == player and side == TOP then
         player.headblock = self
+    elseif target.enemy and self.thrown then
+        target:kill()
     end
 end
 
