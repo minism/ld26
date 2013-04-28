@@ -27,7 +27,7 @@ function Bat:init(data)
     self.w = 11
     self.h = 5
 
-    self:setVectors(25, 25)
+    self:setVectors(40, 40)
 end
 
 function Bat:setVectors(x, y)
