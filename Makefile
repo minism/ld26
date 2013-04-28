@@ -2,7 +2,7 @@ out=ld26.love
 url=http://minornine.com/games/files/$(out)
 
 all:
-	zip -r $(out) *
+	zip -r $(out) * -x assets/*
 	@echo "Wrote $(out)"
 
 clean:
