@@ -23,10 +23,10 @@ WORLD_H = BLOCK_SIZE * WORLD_BLOCKS_Y
 CAMERA_SCALE = 3
 SCREEN_W = 600 / CAMERA_SCALE
 SCREEN_H = 800 / CAMERA_SCALE
-BLOCK_TIMER = 0.75
+BLOCK_TIMER = 1
 CHAIN_TIME = 0.5
 CHAIN_SIZE = 3
-GRAVITY = 250
+GRAVITY = 225
 MOVE_SPEED = 60
 JUMP_POWER = 120
 LEFT, TOP, RIGHT, BOTTOM = 0, 1, 2, 3
@@ -107,12 +107,49 @@ function game:setStaticBlocks()
 end
 
 
+--
+-- Query
+--
+
+function game:findBlocKUnder(source)
+    local sl,st,sr,sb = source:getbb()
+    for i, entity in ipairs(self.entities) do
+        if entity.block and entity.grounded and not entity.chaining then
+            local l,t,r,b = entity:getbb()
+            if overlaps(sl, sr, l, r) and sb == t then
+                return entity
+            end
+        end
+    end
+end
+
+
+function game:getHighestBlock(column)
+    local x = column * BLOCK_SIZE + 1
+    for row=0, WORLD_BLOCKS_Y-1 do
+        local y = row*BLOCK_SIZE
+        for i, entity in ipairs(self.entities) do
+            if entity.block and entity.grounded then
+                local a,b,c,d = entity:getbb()
+                if rect.contains(a,b,c,d,x,y) then
+                    return entity
+                end
+            end
+        end
+    end
+end
+
+
 
 --
 -- Control
 --
 function game:addEntity(entity)
     table.insert(self.entities, entity)
+end
+
+function game:removeEntity(entity)
+    remove_if(self.entities, function(e) return e == entity end)
 end
 
 
@@ -142,7 +179,8 @@ function game:queueBlock(data)
 end
 
 function game:queueClear(block)
-    -- Remove from block map immediately
+    -- Remove from block map immediately and set chaining active
+    block.chaining = true
     game.blockmap[block:getidx()] = nil
 
     -- Queue animation and delete
@@ -153,22 +191,6 @@ function game:queueClear(block)
         glare.alive = false
         block.alive = false
     end)
-end
-
-
-function game:getHighestBlock(column)
-    local x = column * BLOCK_SIZE + 1
-    for row=0, WORLD_BLOCKS_Y-1 do
-        local y = row*BLOCK_SIZE
-        for i, entity in ipairs(self.entities) do
-            if entity.block and entity.grounded then
-                local a,b,c,d = entity:getbb()
-                if rect.contains(a,b,c,d,x,y) then
-                    return entity
-                end
-            end
-        end
-    end
 end
 
 
@@ -247,6 +269,7 @@ end
 
 
 function game:update(dt)
+    input.update(dt)
     time:update(dt)
     if dt > 0 then
         tween.update(dt)

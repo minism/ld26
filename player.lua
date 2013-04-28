@@ -2,8 +2,8 @@ require 'entity'
 
 player = PhysEntity()
 
-player.w = 8
-player.h = 16
+player.w = 12
+player.h = 12
 player.grounded = true
 player.vely = 0
 player.solid = false
@@ -17,7 +17,12 @@ end
 function player:draw()
     getmetatable(player).draw(self)
     colors.white()
-    sprite.drawSprite(33, self.x, self.y)
+    if self.holding then
+        sprite.drawSprite(self.holding.sprite, self.x, self.y)
+        sprite.drawSprite(17, self.x + 2, self.y + BLOCK_SIZE)
+    else
+        sprite.drawSprite(17, self.x, self.y)
+    end
 end
 
 function player:die()
@@ -69,4 +74,25 @@ function player:step(dt)
             self.headblock = nil
         end
     end
+end
+
+function player:update(dt)
+    getmetatable(player).update(self, dt)
+
+    if input.downFrame('grab') then
+        if self.grounded then
+            local block = game:findBlocKUnder(self)
+            if block then
+                self:grabBlock(block)
+            end
+        end
+    end
+end
+
+function player:grabBlock(block)
+    self.x = block.x + (block.w - self.w) / 2
+    self.y = self.y - block.h
+    self.h = self.h + block.h
+    self.holding = block
+    game:removeEntity(block)
 end

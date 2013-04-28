@@ -7,7 +7,8 @@ Block = PhysEntity:extend()
 function Block:init(data)
     self.rested = false
     self.block = true
-    self.color = math.random(1, 2)
+    self.chaining = false
+    self.color = math.random(1, 3)
     self.fade = 0
 
     getmetatable(Block).init(self, data)
