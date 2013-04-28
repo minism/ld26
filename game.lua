@@ -76,7 +76,9 @@ end
 
 function game:loadPhase(phasen)
     self.phasen = phasen
-    self.phase = phases[phasen]
+    if self.phases[self.phasen] then
+        self.phase = phases[phasen]
+    end
     self.clears = 0
 
     if self.phase.pushrate then
@@ -89,10 +91,7 @@ function game:loadPhase(phasen)
 end
 
 function game:nextPhase()
-    self.phasen = self.phasen + 1
-    if self.phases[self.phasen] then
-        self:loadPhase(self.phasen)
-    end
+    self:loadPhase(self.phasen + 1)
 end
 
 
@@ -507,9 +506,9 @@ end
 function game:drawWorld()
     -- Draw level background
     lg.setScissor((REAL_W - WORLD_W * CAMERA_SCALE) / 2, (REAL_H - WORLD_H * CAMERA_SCALE) / 2, WORLD_W * CAMERA_SCALE, WORLD_H * CAMERA_SCALE)
-        sprite.drawScrollingBackground(2, game.ts*5, 0)
-        sprite.drawScrollingBackground(3, game.ts*15, 0)
-        sprite.drawScrollingBackground(3, game.ts*32, 64)
+        sprite.drawScrollingBackground(2, game.ts*self.phasen, 0)
+        sprite.drawScrollingBackground(3, game.ts*self.phasen*3, 0)
+        sprite.drawScrollingBackground(3, game.ts*self.phasen*5, 64)
     lg.setScissor()
 
     -- Draw entities
