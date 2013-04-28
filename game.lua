@@ -16,7 +16,7 @@ HUD_DIMENSIONS = {0, -2, 8, -2, true}
 SCREEN_W = REAL_W / CAMERA_SCALE
 SCREEN_H = REAL_H / CAMERA_SCALE
 BLOCK_TIMER = 0.8
-LIVES = 1
+LIVES = 4
 BASE_CLEARS = 25
 CHAIN_TIME = 0.5
 CHAIN_SIZE = 3
@@ -594,9 +594,9 @@ end
 function game:drawWorld()
     -- Draw level background
     lg.setScissor((REAL_W - WORLD_W * CAMERA_SCALE) / 2, (REAL_H - WORLD_H * CAMERA_SCALE) / 2 + HUD_OFFSET * CAMERA_SCALE, WORLD_W * CAMERA_SCALE, WORLD_H * CAMERA_SCALE)
-        sprite.drawScrollingBackground(2, game.ts*self.phasen, 0)
-        sprite.drawScrollingBackground(3, game.ts*self.phasen*3, 0)
-        sprite.drawScrollingBackground(3, game.ts*self.phasen*5, 64)
+        sprite.drawScrollingBackground(2, game.ts*self.phasen*2, 0)
+        sprite.drawScrollingBackground(3, game.ts*self.phasen*5, 0)
+        sprite.drawScrollingBackground(3, game.ts*self.phasen*9, 64)
     lg.setScissor()
 
     -- Draw frame

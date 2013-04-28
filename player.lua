@@ -197,7 +197,7 @@ function player:update(dt)
             local a,b,c,d = self:getbb()
             local w,x,y,z = entity:getbb()
             if rect.intersects(a,b,c,d,w,x,y,z) then
-                entity.alive = false
+                self:die()
             end
         end
     end

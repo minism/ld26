@@ -31,6 +31,10 @@ function Bat:init(data)
 end
 
 function Bat:setVectors(x, y)
+    if math.random() < 0.5 then
+        x, y = vector.rotate(x, y, math.random() < 0.5 and TAU / 16 or -TAU / 16)
+    end
+
     self.velx = x
     self.vely = y
     self._lastvx = x
