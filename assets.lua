@@ -9,6 +9,12 @@ function assets.load()
         end
     end
 
-    assets.sfx = fs.loadSounds('sfx')
+
+    assets.sfx = fs.loadSounds('sfx', 'static')
+    assets.mus = fs.loadSounds('mus', 'streaming')
+
+    for k, v in pairs(assets.sfx) do
+        v:setVolume(0.5)
+    end
 end
 

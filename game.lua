@@ -14,6 +14,7 @@ CAMERA_SCALE = 3
 SCREEN_W = REAL_W / CAMERA_SCALE
 SCREEN_H = REAL_H / CAMERA_SCALE
 BLOCK_TIMER = 1
+BASE_CLEARS = 30
 CHAIN_TIME = 0.5
 CHAIN_SIZE = 3
 GRAVITY = 600
@@ -60,19 +61,23 @@ function game:init()
     }
 
     self.soundtimers = {}
-
     self.blockmap = {}
     self.entities = {}
     player:reset()
     player.x = 0
     player.y = WORLD_H - player.h
+    game:initWorld()
     game:loadPhase(1)
+
+
+    game:music 'mus1'
 end
 
 
-function game:loadPhase(phase)
-    game.phase = phases[phase]
-    game:initWorld()
+function game:loadPhase(phasen)
+    self.phasen = phasen
+    self.phase = phases[phasen]
+    self.clears = 0
 
     if self.phase.pushrate then
         game:queuePush()
@@ -80,6 +85,13 @@ function game:loadPhase(phase)
 
     if self.phase.droprate then
         game:queueDrop()
+    end
+end
+
+function game:nextPhase()
+    self.phasen = self.phasen + 1
+    if self.phases[self.phasen] then
+        self:loadPhase(self.phasen)
     end
 end
 
@@ -106,8 +118,6 @@ function game:initWorld()
     --         self:addEntity(block)
     --     end
     -- end
-
-
 end
 
 
@@ -165,6 +175,10 @@ function game:findBlockUnder(source)
     end
 end
 
+function game:randomColor()
+    return math.random(1, #self.phase.colors)
+end
+
 
 -- function game:freeBlockSpace(col, row)
 --     if col >= 0 and col < WORLD_BLOCKS_X and row >= 0 and row < WORLD_BLOCKS_Y then
@@ -204,10 +218,11 @@ end
 -- Control
 --
 
-function game:randomColor()
-    return math.random(1, #self.phase.colors)
+function game:checkClears()
+    if self.clears > BASE_CLEARS then
+        self:nextPhase()
+    end
 end
-
 
 function game:addEntity(entity)
     table.insert(self.entities, entity)
@@ -343,6 +358,8 @@ function game:queueClear(block)
     local glare = BlockGlare({x=block.x, y=block.y})
     game:addEntity(glare)
     time:after(CHAIN_TIME, function()
+        self.clears = self.clears + 1
+        self:checkClears()
         glare.alive = false
         block.alive = false
     end)
@@ -537,6 +554,11 @@ function game:sound(sound)
     end
 end
 
+function game:music(music)
+    assets.mus[music]:play()
+    assets.mus[music]:setLooping(true)
+end
+
 
 
 
@@ -557,7 +579,7 @@ function game:keypressed(key, unicode)
         self.flags.blockmap = not self.flags.blockmap
     end
     if input.match('init', key) then
-        game:loadPhase(1)
+        game:initWorld(1)
     end
 end
 
