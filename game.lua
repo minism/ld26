@@ -208,6 +208,7 @@ end
 function game:respawn()
     self.lives = self.lives - 1
     if self.lives <= 0 then
+        
         menu:lose()
     end
 
