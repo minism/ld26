@@ -15,6 +15,7 @@ local IDLE, RUN, CARRY_IDLE, CARRY_RUN, LIFTING = 0, 1, 2, 3, 4
 
 
 function player:reset()
+    self.holding = nil
     self.headblock = nil
     self:setState(IDLE)
 end
@@ -26,21 +27,30 @@ function player:setState(state)
 
     self.state = state
     if state == IDLE then
-        self.sprite = 25+16
-        self.anim_size = 4
+        self.sprite = 17
+        self.anim_size = 1
     elseif state == CARRY_IDLE then
         self.sprite = 17 + 4
-        self.anim_size = 4
+        self.anim_size = 1
     elseif state == RUN then
         self.sprite = 25
         self.anim_size = 6
     elseif state == CARRY_RUN then
-        self.sprite = 25 + 8
+        self.sprite = 33
         self.anim_size = 6
-    elseif state == LIFING then
-        self.sprite = 25 + 16
+    elseif state == LIFTING then
+        self.sprite = 41
         self.anim_size = 4
     end
+end
+
+
+function player:getbb_block()
+    local l, t, r, b = self:getbb()
+    if self.holding then
+        t = t - self.holding.h
+    end
+    return l, t, r, b
 end
 
 
@@ -48,6 +58,21 @@ function player:draw()
     lg.setColor(self:getColor())
     if type(self.sprite) == 'number' then
         sprite.drawSprite(self:spriteFrame(), self:getDrawParams())
+    end
+
+    if self.holding then
+        local x = self.x - (self.holding.w - self.w) / 2
+        local y = self.y - self.h
+        if self.state == LIFTING then
+            y = self.y - (self.anim_frame + 1) / 4 * self.h
+        end
+        sprite.drawSprite(self.holding:spriteFrame(), x, y)
+    end
+
+    if game.flags.showbb then
+        colors.debug()
+        local l,t,r,b = self:getbb_block()
+        love.graphics.rectangle('line', l, t, r-l, b-t)
     end
 end
 
@@ -59,24 +84,26 @@ function player:die()
 end
 
 function player:updateVectors(dt)
-    if input.downFrame('jump') and self.grounded then
-        self.jump_timer = 0
-        self.grounded = false
-    end
+    if self.state ~= LIFTING then
+        if input.downFrame('jump') and self.grounded then
+            self.jump_timer = 0
+            self.grounded = false
+        end
 
-    if input.down('jump') then
-        local alpha = math.min(self.jump_timer / JUMP_TIME, 1.0)
-        self.vely = self.vely - (1.0 - alpha) * JUMP_POWER * dt
-    end
+        if input.down('jump') then
+            local alpha = math.min(self.jump_timer / JUMP_TIME, 1.0)
+            self.vely = self.vely - (1.0 - alpha) * JUMP_POWER * dt
+        end
 
-    self.vely = self.vely + GRAVITY * dt
+        self.vely = self.vely + GRAVITY * dt
 
-    if input.down('left') then
-        self.velx = -MOVE_SPEED
-    elseif input.down('right') then
-        self.velx = MOVE_SPEED
-    else
-        self.velx = 0
+        if input.down('left') then
+            self.velx = -MOVE_SPEED
+        elseif input.down('right') then
+            self.velx = MOVE_SPEED
+        else
+            self.velx = 0
+        end
     end
 end
 
@@ -87,6 +114,9 @@ function player:step(dt)
         -- Check if we're still underneath it
         if overlaps(self.x, self.x+self.w, self.headblock.x, self.headblock.x+self.headblock.w) then
             self.y = self.headblock.y + self.headblock.h
+            if self.holding then
+                self.y = self.y + self.holding.h
+            end
             self.vely = 0
             
             -- Check if we intersect with any blocks below
@@ -110,22 +140,28 @@ function player:update(dt)
     getmetatable(player).update(self, dt)
 
     self.jump_timer = self.jump_timer + dt
-    self.lift_timer = self.lift_timer + dt
 
-    if self.velx < 0 then
-        self.right = false
-    elseif self.velx > 0 then
-        self.right = true
-    end
-
-    if math.abs(self.velx) > 0 then
-        self:setState(RUN)
+    if self.state == LIFTING then
+        self.lift_timer = self.lift_timer + dt
+        if self.lift_timer > LIFT_TIME then
+            self.state = CARRY_IDLE
+        end
     else
-        self:setState(IDLE)
+        if self.velx < 0 then
+            self.right = false
+        elseif self.velx > 0 then
+            self.right = true
+        end
+
+        if math.abs(self.velx) > 0 then
+            self:setState(self.holding and CARRY_RUN or RUN)
+        else
+            self:setState(self.holding and CARRY_IDLE or IDLE)
+        end
     end
 
     if input.downFrame('grab') then
-        if self.grounded then
+        if self.grounded and not self.holding then
             local block = game:findBlocKUnder(self)
             if block then
                 self:liftBlock(block)
@@ -135,9 +171,12 @@ function player:update(dt)
 end
 
 function player:liftBlock(block)
-    -- self.x = block.x + (block.w - self.w) / 2
-    -- self.y = self.y - block.h
+    self.x = block.x + (block.w - self.w) / 2
+    self.y = self.y + block.h
     -- self.h = self.h + block.h
-    -- self.holding = block
+    self.holding = block
+    self.lift_timer = 0
+    self.velx = 0
+    self:setState(LIFTING)
     game:removeEntity(block)
 end

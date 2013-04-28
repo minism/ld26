@@ -24,7 +24,7 @@ function Entity:init(data)
     self.anim_size = 1
     self.anim_timer = 0
     self.anim_frame = 0
-    self.anim_speed = 1 / 16
+    self.anim_speed = ANIM_SPEED
 
     getmetatable(Entity).init(self, data)
 end
@@ -154,7 +154,7 @@ function PhysEntity:step(dt)
 end
 
 function PhysEntity:projectCollision(nx, ny, entity)
-    local l, t, r, b = entity:getbb()
+    local l, t, r, b = self:getbbFor(entity)
 
     -- Check x axis collisions
     if overlaps(self.y, self.y + self.h, t, b) then
@@ -194,6 +194,9 @@ function PhysEntity:projectCollision(nx, ny, entity)
     return nx, ny
 end
 
+function PhysEntity:getbbFor(entity)
+    return entity:getbb()
+end
 
 function PhysEntity:collideWith(target, side)
 end

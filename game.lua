@@ -1,16 +1,3 @@
-require 'math'
-
-require 'assets'
-require 'sprite'
-require 'input'
-require 'player'
-require 'entity'
-require 'block'
-require 'input'
-
-game = leaf.Context()
-
-
 --
 -- Game constants
 --
@@ -30,8 +17,22 @@ GRAVITY = 400
 MOVE_SPEED = 60
 JUMP_POWER = 3400
 JUMP_TIME = 0.10
-LIFT_TIME = (1 / 16) * 4
+ANIM_SPEED = 1 / 30
+LIFT_TIME = ANIM_SPEED * 4
 LEFT, TOP, RIGHT, BOTTOM = 0, 1, 2, 3
+
+
+require 'math'
+
+require 'assets'
+require 'sprite'
+require 'input'
+require 'player'
+require 'entity'
+require 'block'
+require 'input'
+
+game = leaf.Context()
 
 
 

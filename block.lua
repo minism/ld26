@@ -39,6 +39,14 @@ function Block:collideWith(target, side)
     end
 end
 
+function Block:getbbFor(entity)
+    if entity == player then
+        return entity:getbb_block()
+    else
+        return entity:getbb()
+    end
+end
+
 
 
 
