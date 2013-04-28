@@ -76,7 +76,7 @@ end
 
 function game:loadPhase(phasen)
     self.phasen = phasen
-    if self.phases[self.phasen] then
+    if phases[self.phasen] then
         self.phase = phases[phasen]
     end
     self.clears = 0
@@ -128,14 +128,12 @@ function game:setStaticBlocks()
         y=-BLOCK_SIZE,
         w=WORLD_W + BLOCK_SIZE * 2,
         awake = false,
-        sprite = i == -1 and 31 or i == WORLD_BLOCKS_X and 32 or 47,
     }
     local static_block_bot = Pusher {
         x=-BLOCK_SIZE,
         y=WORLD_H,
         w=WORLD_W + BLOCK_SIZE * 2,
         awake = false,
-        sprite = i == -1 and 39 or i == WORLD_BLOCKS_X and 40 or 48,
     }
     game:addEntity(static_block_top)
     game:addEntity(static_block_bot)
@@ -144,14 +142,12 @@ function game:setStaticBlocks()
         x=-BLOCK_SIZE,
         h=WORLD_H,
         awake = false,
-        sprite = 45,
     }
     local static_block_right = Pusher {
         y=0,
         x=WORLD_W,
         h=WORLD_H,
         awake = false,
-        sprite = 46,
     }
     game:addEntity(static_block_left)
     game:addEntity(static_block_right)
@@ -510,6 +506,21 @@ function game:drawWorld()
         sprite.drawScrollingBackground(3, game.ts*self.phasen*3, 0)
         sprite.drawScrollingBackground(3, game.ts*self.phasen*5, 64)
     lg.setScissor()
+
+    for i=0,WORLD_BLOCKS_X-1 do
+        local x, y = i * BLOCK_SIZE, -BLOCK_SIZE
+        sprite.drawSprite(47, x, y)
+        sprite.drawSprite(48, x, WORLD_H)
+    end
+    for j=0,WORLD_BLOCKS_Y-1 do
+        local x, y = -BLOCK_SIZE, j * BLOCK_SIZE
+        sprite.drawSprite(45, x, y)
+        sprite.drawSprite(46, WORLD_W, y)
+    end
+    sprite.drawSprite(40, WORLD_W, WORLD_H)
+    sprite.drawSprite(39, -BLOCK_SIZE, WORLD_H)
+    sprite.drawSprite(32, WORLD_W, -BLOCK_SIZE)
+    sprite.drawSprite(31, -BLOCK_SIZE, -BLOCK_SIZE)
 
     -- Draw entities
     for i, entity in ipairs(self.entities) do
