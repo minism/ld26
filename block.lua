@@ -21,8 +21,8 @@ function Block:update(dt)
 
     if self.grounded and self.velx == 0 and self.vely == 0 and not self.rested then
         -- Block is rested for the first time
-        self.rested = true
-        game:blockRested(self)
+        -- self.rested = true
+        -- game:blockRested(self)
     elseif not self.grounded then
         game:unsetBlock(self)
         self.rested = false

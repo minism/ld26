@@ -7,7 +7,7 @@ phases = {
     {
         -- pushrate = {1,1},
         -- droprate = {1, 2},
-        colors = { c1, c2, c3 },
+        colors = { c1, c2 },
     },
 }
 

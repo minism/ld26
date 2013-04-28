@@ -91,8 +91,21 @@ function game:initWorld()
     self:setStaticBlocks()
 
 
-    -- for c=0, WORLD_BLOCKS_X - 1 do
-        -- 
+    local i = 0
+    for c=0, WORLD_BLOCKS_X - 1 do
+        for r=1, WORLD_BLOCKS_Y - 1 do
+            i = i + 1
+            local color = i % #self.phase.colors + 1
+            local x, y = cr2pos(c,r)
+            local block = Block {
+                x = x,
+                y = y,
+            }
+            self:addEntity(block)
+        end
+    end
+
+
 end
 
 
