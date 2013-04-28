@@ -92,6 +92,10 @@ function game:loadPhase(phasen)
     if self.phase.droprate then
         time:after(self.phase.droprate[1], function() self:queueDrop() end)
     end
+
+    if self.phase.batrate then
+        time:after(self.phase.batrate[1], function() self:queueBat() end)
+    end
 end
 
 function game:nextPhase()
@@ -108,21 +112,6 @@ function game:initWorld()
     self:setStaticBlocks()
     self.total_clears = 0
 
-    self:addEntity(Bat())
-    -- Fill with blocks for debugging
-    -- local i = 0
-    -- for c=0, WORLD_BLOCKS_X - 1 do
-    --     for r=1, WORLD_BLOCKS_Y - 1 do
-    --         i = i + 1
-    --         local color = i % #self.phase.colors + 1
-    --         local x, y = cr2pos(c,r)
-    --         local block = Block {
-    --             x = x,
-    --             y = y,
-    --         }
-    --         self:addEntity(block)
-    --     end
-    -- end
 end
 
 
@@ -179,25 +168,10 @@ function game:findBlockUnder(source)
 end
 
 function game:randomColor()
-    return math.random(1, #self.phase.colors)
+    return math.random(1, self.phase.color_limit or #self.phase.colors)
 end
 
 
--- function game:freeBlockSpace(col, row)
---     if col >= 0 and col < WORLD_BLOCKS_X and row >= 0 and row < WORLD_BLOCKS_Y then
---         local l,r,t,b = cr2pos(col, row)
---         for i, entity in ipairs(self.entities) do
---             if entity.block then
---                 local x,y,x2,y2 = entity:getbb()
---                 if overlaps(l+1,r,x,x2) and overlaps(t,b,y,y2) then
---                     return false
---                 end
---             end
---         end
---         return true
---     end
---     return false
--- end
 
 
 function game:getHighestBlock(column)
@@ -222,7 +196,7 @@ end
 --
 
 function game:checkClears()
-    if self.clears > BASE_CLEARS then
+    if self.clears > BASE_CLEARS + (self.phasen - 1) * 5 then
         self:nextPhase()
     end
 end
@@ -233,6 +207,19 @@ end
 
 function game:removeEntity(entity)
     remove_if(self.entities, function(e) return e == entity end)
+end
+
+function game:queueBat()
+    self:addEntity(Bat())
+
+    local queue_phase = self.phasen
+    if self.phase.batrate then
+        time:after(math.random(unpack(self.phase.batrate)), function()
+            if self.phasen == queue_phase then
+                self:queueBat()
+            end
+        end)
+    end
 end
 
 function game:queuePush()
@@ -266,7 +253,7 @@ function game:pushColumns()
             color_count = color_count + 1
             if color_count >= 3 then
                 color_count = 1
-                color = (color % #self.phase.colors) + 1
+                color = (color % self.phase.color_limit or #self.phase.colors) + 1
             end
         end
         last_color = color
