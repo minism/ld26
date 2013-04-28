@@ -18,6 +18,7 @@ end
 require 'utils'
 
 
+
 -- Other aliases
 lg = love.graphics
 
@@ -28,14 +29,21 @@ time = Time()
 colors = require 'colors'
 
 
+
+require 'assets'
+require 'sprite'
+
+
 function love.load()
     -- Seed randomness
     math.randomseed(os.time()); math.random()
 
     require 'game'
+    assets.load()
+    sprite.load()
     love.setUpdateTimestep(1 / 60)
     app:bind()
-    app:pushContext(game)
+    app:swapContext(game)
     game:init()
 end
 

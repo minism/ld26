@@ -16,7 +16,7 @@ HUD_DIMENSIONS = {0, -2, 8, -2, true}
 SCREEN_W = REAL_W / CAMERA_SCALE
 SCREEN_H = REAL_H / CAMERA_SCALE
 BLOCK_TIMER = 0.8
-LIVES = 5
+LIVES = 1
 BASE_CLEARS = 25
 CHAIN_TIME = 0.5
 CHAIN_SIZE = 3
@@ -35,8 +35,6 @@ LEFT, TOP, RIGHT, BOTTOM = 0, 1, 2, 3
 
 require 'math'
 
-require 'assets'
-require 'sprite'
 require 'input'
 require 'player'
 require 'entity'
@@ -55,8 +53,6 @@ game = leaf.Context()
 --
 function game:init()
     -- Load all assets
-    assets.load()
-    sprite.load()
     self.ts = 0
 
     -- Runtime state flags
@@ -212,7 +208,7 @@ end
 function game:respawn()
     self.lives = self.lives - 1
     if self.lives <= 0 then
-        menu.lose()
+        menu:lose()
     end
 
 
@@ -635,14 +631,16 @@ end
 
 
 function game:drawHUD()
-    local hx, hy = 110, 45
+    local hx, hy = 110, 47
     colors.score1()
     lg.setFont(assets.font)
     lg.print("PHASE ", hx, hy)
-    lg.print("BLOCKS ", hx + 200, hy)
+    lg.print("LIVES ", hx + 130, hy)
+    lg.print("BLOCKS ", hx + 260, hy)
     colors.score2()
-    lg.print(self.phasen, hx + 120, hy)
-    lg.print(self.total_clears, hx + 340, hy)
+    lg.print(self.phasen, hx + 75, hy)
+    lg.print(self.lives, hx + 210, hy)
+    lg.print(self.total_clears, hx + 350, hy)
 
     colors.console()
     if self.flags.debug then

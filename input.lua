@@ -5,6 +5,7 @@ input = {
         jump = {'w', ' ', 'up'},
         grab = {'j', 'z'},
         throw = {'k', 'x'},
+        quit = {'escape'},
 
 
         debug = {'1',},
