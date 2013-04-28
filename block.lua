@@ -9,7 +9,6 @@ function Block:init(data)
     self.block = true
     self.chaining = false
     self.color = game:randomColor()
-    self.fade = 0
 
     getmetatable(Block).init(self, data)
 
@@ -30,8 +29,7 @@ function Block:update(dt)
 end
 
 function Block:getColor()
-    local clr = game.phase.colors[self.color]
-    return color.desaturate(clr, self.fade * 255)
+    return game.phase.colors[self.color]
 end
 
 function Block:collideWith(target, side)
@@ -99,6 +97,6 @@ function BlockGlare:init(data)
     getmetatable(BlockGlare).init(self, data)
     self.sprite = 9
     self.anim_size = 8
-    self.anim_speed = 1 / 24
+    self.anim_speed = 1 / 16
     self.anim_once = true
 end

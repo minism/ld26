@@ -15,7 +15,7 @@ HUD_OFFSET = 10
 HUD_DIMENSIONS = {0, -2, 8, -2, true}
 SCREEN_W = REAL_W / CAMERA_SCALE
 SCREEN_H = REAL_H / CAMERA_SCALE
-BLOCK_TIMER = 1
+BLOCK_TIMER = 0.8
 BASE_CLEARS = 30
 CHAIN_TIME = 0.5
 CHAIN_SIZE = 3
@@ -62,6 +62,7 @@ function game:init()
         blockmap = false,
     }
 
+    self.push_timer = -10
     self.soundtimers = {}
     self.blockmap = {}
     self.entities = {}
@@ -230,7 +231,13 @@ function game:removeEntity(entity)
 end
 
 function game:queuePush()
-    time:after(BLOCK_TIMER, function() self:pushColumns() end)
+    self.push_timer = 0
+    local faller = PhysEntity { x = -BLOCK_SIZE, y = 0, sprite = 55}
+    self:addEntity(faller)
+    time:after(BLOCK_TIMER, function() 
+        self:pushColumns() 
+        faller.alive = false
+    end)
     if self.phase.pushrate then
         time:after(math.random(unpack(self.phase.pushrate)), function()
             self:queuePush()
@@ -351,7 +358,7 @@ function game:queueClear(block)
     game:unsetBlock(block)
 
     -- Queue animation and delete
-    tween(CHAIN_TIME, block, {fade=1}, 'inQuad')
+    block.sprite = 2
     local glare = BlockGlare({x=block.x, y=block.y})
     game:addEntity(glare)
     time:after(CHAIN_TIME, function()
@@ -457,6 +464,7 @@ function game:update(dt)
     input.update(dt)
     time:update(dt)
 
+    self.push_timer = self.push_timer + dt
     for k, v in pairs(self.soundtimers) do
         self.soundtimers[k] = v - dt
     end
@@ -558,6 +566,10 @@ function game:drawWorld()
         end
     end
 
+    -- Draw push decals
+    local pushsprite = self.push_timer > BLOCK_TIMER and self.push_timer < BLOCK_TIMER * 2 and 54 or 53
+    sprite.drawSprite(pushsprite, -BLOCK_SIZE, WORLD_H)
+
     -- Draw scoreboard
     game:drawFrame(unpack(HUD_DIMENSIONS))
     player:draw()
@@ -576,6 +588,7 @@ function game:drawHUD()
 
     colors.console()
     if self.flags.debug then
+        lg.setFont(assets.font_debug)
         lg.print("FPS: " .. love.timer.getFPS(), 5, 5)
         lg.print("#Timers: " .. #time.timers, 5, 15)
         lg.print("#Tweens: " .. tween.count(), 5, 25)
@@ -617,7 +630,7 @@ function game:keypressed(key, unicode)
         self.flags.blockmap = not self.flags.blockmap
     end
     if input.match('init', key) then
-        game:initWorld(1)
+        game:loadPhase(1)
     end
 end
 

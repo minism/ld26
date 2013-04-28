@@ -19,5 +19,6 @@ function assets.load()
 
 
     assets.font = lg.newFont('font/font.ttf', 36)
+    assets.font_debug = lg.newFont(14)
 end
 
