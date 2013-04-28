@@ -8,8 +8,9 @@ player.grounded = true
 player.vely = 0
 player.solid = false
 player.z_index = 1
-player.jump_timer = 0
 player.lift_timer = 0
+player.jump_timer = 0
+player.jump_fuel = JUMP_FUEL
 
 local IDLE, RUN, CARRY_IDLE, CARRY_RUN, LIFTING = 0, 1, 2, 3, 4
 
@@ -85,15 +86,21 @@ function player:die()
 end
 
 function player:updateVectors(dt)
+    -- love.timer.sleep(0.015)
     if self.state ~= LIFTING then
         if input.downFrame('jump') and self.grounded then
-            self.jump_timer = 0
+            self.jump_fuel = 1.0
+            self.jump_timer = JUMP_TIME
             self.grounded = false
         end
 
-        if input.down('jump') then
-            local alpha = math.min(self.jump_timer / JUMP_TIME, 1.0)
-            self.vely = self.vely - (1.0 - alpha) * JUMP_POWER * dt
+        if input.down('jump') and self.jump_fuel > 0 then
+            -- local last_fuel = self.jump_fuel
+            -- self.jump_timer = self.jump_timer - dt
+            -- self.jump_fuel = math.max(self.jump_fuel - self.jump_timer, 0)
+            -- console:write(self.jump_fuel)
+            -- local fuel_delta = last_fuel - self.jump_fuel
+            -- self.vely = self.vely - JUMP_POWER  * fuel_delta
         end
 
         self.vely = self.vely + GRAVITY * dt
@@ -139,8 +146,6 @@ end
 
 function player:update(dt)
     getmetatable(player).update(self, dt)
-
-    self.jump_timer = self.jump_timer + dt
 
     if self.state == LIFTING then
         self.lift_timer = self.lift_timer + dt
@@ -210,8 +215,9 @@ function player:throwBlock()
     -- Throw at 45 degree angle
     local vec = vector(0, -1)
     local rotation = self.right and TAU / 8 or -TAU / 8
-    block.velx = vec.x * THROW_POWER
-    block.vely = vec.y * THROW_POWER
+    local vx, vy = vector.rotate(vec, rotation)
+    block.velx = vx * THROW_POWER
+    block.vely = vy * THROW_POWER
 
     game:addEntity(block)
 end

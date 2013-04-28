@@ -13,7 +13,7 @@ function Block:init(data)
 
     getmetatable(Block).init(self, data)
 
-    self.sprite = 2
+    self.sprite = 3
 end
 
 function Block:update(dt)

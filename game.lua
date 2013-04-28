@@ -14,11 +14,11 @@ SCREEN_H = 800 / CAMERA_SCALE
 BLOCK_TIMER = 1
 CHAIN_TIME = 0.5
 CHAIN_SIZE = 3
-GRAVITY = 400
+GRAVITY = 600
 MOVE_SPEED = 60
-JUMP_POWER = 3400
-THROW_POWER = 100
-JUMP_TIME = 0.10
+JUMP_POWER = 200
+JUMP_TIME = 10 / 60
+THROW_POWER = 200
 ANIM_SPEED = 1 / 30
 LIFT_TIME = ANIM_SPEED * 4
 LEFT, TOP, RIGHT, BOTTOM = 0, 1, 2, 3
@@ -73,8 +73,8 @@ function game:initWorld()
     -- self:queueBlock({pos=1})
     -- time:after(0.1, function() self:queueBlock({pos=2}) end)
     -- time:after(0.2, function() self:queueBlock({pos=3}) end)
-    -- self:queueBlock()
-    time:every(BLOCK_TIMER, function() self:queueBlock() end)
+    self:queueBlock({pos=1})
+    -- time:every(BLOCK_TIMER, function() self:queueBlock() end)
 end
 
 
