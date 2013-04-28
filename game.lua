@@ -89,6 +89,10 @@ function game:initWorld()
     self.blockmap = {}
     self.entities = {}
     self:setStaticBlocks()
+
+
+    -- for c=0, WORLD_BLOCKS_X - 1 do
+        -- 
 end
 
 
@@ -478,13 +482,9 @@ function game:drawWorld()
         sprite.drawScrollingBackground(3, game.ts*32, 64)
     lg.setScissor()
 
-    -- Draw entities sorted by z index
-    for z=0, 3 do
-        for i, entity in ipairs(self.entities) do
-            if entity.z_index == z then
-                entity:draw()
-            end
-        end
+    -- Draw entities
+    for i, entity in ipairs(self.entities) do
+        entity:draw()
     end
 
     -- Draw blockmap debug
