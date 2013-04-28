@@ -170,6 +170,10 @@ function player:update(dt)
             self:setBlock()
         end
     end
+
+    if input.downFrame('throw') and self.state ~= LIFTING and self.holding then
+        self:throwBlock()
+    end
 end
 
 function player:setBlock()
@@ -188,9 +192,13 @@ end
 function player:liftBlock(block)
     -- self.x = block.x + (block.w - self.w) / 2
     self.y = self.y + block.h
+    block.rested = false
     self.holding = block
     self.lift_timer = 0
     self.velx = 0
     self:setState(LIFTING)
     game:removeEntity(block)
+end
+
+function player:throwBlock(block)
 end

@@ -4,6 +4,7 @@ input = {
         right = {'d', 'right'},
         jump = {'w', 'space', 'up'},
         grab = {'j', 'z'},
+        throw = {'k', 'x'},
 
 
         debug = {'1',},

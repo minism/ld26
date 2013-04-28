@@ -47,6 +47,11 @@ function Block:getbbFor(entity)
     end
 end
 
+function Block:updateVectors(dt)
+    getmetatable(Block).updateVectors(self, dt)
+end
+
+
 
 
 
