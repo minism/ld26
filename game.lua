@@ -89,6 +89,7 @@ function game:initWorld()
     self:setStaticBlocks()
 
 
+    -- Fill with blocks for debugging
     -- local i = 0
     -- for c=0, WORLD_BLOCKS_X - 1 do
     --     for r=1, WORLD_BLOCKS_Y - 1 do
