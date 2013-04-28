@@ -86,7 +86,6 @@ function player:die()
 end
 
 function player:updateVectors(dt)
-    -- love.timer.sleep(0.015)
     if self.state ~= LIFTING then
         if input.downFrame('jump') and self.grounded then
             self.jump_fuel = 1.0
@@ -95,12 +94,13 @@ function player:updateVectors(dt)
         end
 
         if input.down('jump') and self.jump_fuel > 0 then
-            -- local last_fuel = self.jump_fuel
-            -- self.jump_timer = self.jump_timer - dt
-            -- self.jump_fuel = math.max(self.jump_fuel - self.jump_timer, 0)
-            -- console:write(self.jump_fuel)
-            -- local fuel_delta = last_fuel - self.jump_fuel
-            -- self.vely = self.vely - JUMP_POWER  * fuel_delta
+            local last_fuel = self.jump_fuel
+            self.jump_timer = self.jump_timer - dt
+            local alpha = self.jump_timer / JUMP_TIME
+            local usage = (alpha * alpha * alpha) / 2
+            self.jump_fuel = math.max(self.jump_fuel - usage, 0)
+            local fuel_delta = last_fuel - self.jump_fuel
+            self.vely = self.vely - JUMP_POWER * fuel_delta
         end
 
         self.vely = self.vely + GRAVITY * dt
