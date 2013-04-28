@@ -14,23 +14,24 @@ local IDLE, RUNNING = 0, 1
 
 function player:reset()
     self.headblock = nil
-    self:setAnimation(IDLE)
+    self:setState(IDLE)
 end
 
-function player:setAnimation(state)
-    self.sprite = 18
-    self.anim_size = 6
+function player:setState(state)
+    if state == IDLE then
+        self.sprite = 17
+        self.anim_size = 4
+    elseif state == RUNNING then
+        self.sprite = 25
+        self.anim_size = 6
+    end
 end
 
 
 function player:draw()
-    getmetatable(player).draw(self)
-    colors.white()
-    if self.holding then
-        sprite.drawSprite(self.holding.sprite, self.x, self.y)
-        sprite.drawSprite(17, self.x + 2, self.y + BLOCK_SIZE)
-    else
-        sprite.drawSprite(self:spriteFrame(), self.x, self.y)
+    lg.setColor(self:getColor())
+    if type(self.sprite) == 'number' then
+        sprite.drawSprite(self:spriteFrame(), self:getDrawParams())
     end
 end
 
@@ -87,6 +88,18 @@ end
 
 function player:update(dt)
     getmetatable(player).update(self, dt)
+
+    if self.velx < 0 then
+        self.right = false
+    elseif self.velx > 0 then
+        self.right = true
+    end
+
+    if math.abs(self.velx) > 0 then
+        self:setState(RUNNING)
+    else
+        self:setState(IDLE)
+    end
 
     if input.downFrame('grab') then
         if self.grounded then

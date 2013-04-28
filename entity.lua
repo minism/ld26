@@ -16,6 +16,7 @@ function Entity:init(data)
     self.y = 0
     self.h = BLOCK_SIZE
     self.w = BLOCK_SIZE
+    self.right = true
     self.alive = true
     self.z_index = 0
 
@@ -23,7 +24,7 @@ function Entity:init(data)
     self.anim_size = 1
     self.anim_timer = 0
     self.anim_frame = 0
-    self.anim_speed = 1 / 12
+    self.anim_speed = 1 / 16
 
     getmetatable(Entity).init(self, data)
 end
@@ -42,6 +43,15 @@ function Entity:update(dt)
     end
 end
 
+function Entity:getDrawParams()
+    local x = self.right and self.x or self.x + self.w
+    local sx = self.right and 1 or -1
+    local y = self.y
+    local r = 0
+    local sy = 1
+    return x, y, r, sx, sy
+end
+
 function Entity:setSprite(sprite, anim_size)
     self.sprite = sprite
     self.anim_size = anim_size or 1
@@ -55,7 +65,7 @@ function Entity:draw()
     lg.setColor(self:getColor())
 
     if type(self.sprite) == 'number' then
-        sprite.drawSprite(self:spriteFrame(), self.x, self.y)
+        sprite.drawSprite(self:spriteFrame(), self:getDrawParams())
     end
 end
 
