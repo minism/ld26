@@ -24,6 +24,7 @@ function Block:update(dt)
         self.rested = true
         game:blockRested(self)
     elseif not self.grounded then
+        game:unsetBlock(self)
         self.rested = false
     end
 end

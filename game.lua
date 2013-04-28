@@ -18,7 +18,8 @@ GRAVITY = 600
 MOVE_SPEED = 60
 JUMP_POWER = 225
 JUMP_TIME = 10 / 60
-THROW_POWER = 200
+THROW_POWER = 175
+THROW_ANGLE = TAU / 8
 ANIM_SPEED = 1 / 30
 LIFT_TIME = ANIM_SPEED * 4
 LEFT, TOP, RIGHT, BOTTOM = 0, 1, 2, 3
@@ -50,6 +51,7 @@ function game:init()
     self.flags = {
         debug = true,
         showbb = false,
+        blockmap = false,
     }
 
     game:initWorld()
@@ -73,8 +75,8 @@ function game:initWorld()
     -- self:queueBlock({pos=1})
     -- time:after(0.1, function() self:queueBlock({pos=2}) end)
     -- time:after(0.2, function() self:queueBlock({pos=3}) end)
-    self:queueBlock({pos=1})
-    -- time:every(BLOCK_TIMER, function() self:queueBlock() end)
+    self:queueBlock()
+    time:every(BLOCK_TIMER, function() self:queueBlock() end)
 end
 
 
@@ -203,7 +205,7 @@ end
 function game:queueClear(block)
     -- Remove from block map immediately and set chaining active
     block.chaining = true
-    game.blockmap[block:getidx()] = nil
+    game:unsetBlock(block)
 
     -- Queue animation and delete
     tween(CHAIN_TIME, block, {fade=1}, 'inQuad')
@@ -213,6 +215,16 @@ function game:queueClear(block)
         glare.alive = false
         block.alive = false
     end)
+end
+
+function game:unsetBlock(block)
+    game.blockmap[block:getidx()] = nil
+end
+
+
+function game:removeBlock(block)
+    game:unsetBlock(block)
+    game:removeEntity(block)
 end
 
 
@@ -344,7 +356,21 @@ function game:drawWorld()
             end
         end
     end
-    
+
+    -- Draw blockmap debug
+    colors.white()
+    if self.flags.blockmap then
+        for i=0, WORLD_BLOCKS_X-1 do
+            for j=0, WORLD_BLOCKS_Y-1 do
+                local idx = cr2idx(i, j)
+                if self.blockmap[idx] then
+                    local x, y = cr2pos(i, j)
+                    love.graphics.print(self.blockmap[idx].color, x+2, y+2)
+                end
+            end
+        end
+    end
+
     player:draw()
 end
 
@@ -374,6 +400,9 @@ function game:keypressed(key, unicode)
     end
     if input.match('showbb', key) then
         self.flags.showbb = not self.flags.showbb
+    end
+    if input.match('blockmap', key) then
+        self.flags.blockmap = not self.flags.blockmap
     end
     if input.match('init', key) then
         game:initWorld()

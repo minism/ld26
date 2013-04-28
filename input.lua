@@ -9,6 +9,7 @@ input = {
 
         debug = {'1',},
         showbb = {'2',},
+        blockmap = {'3',},
         init = {'0',},
     }
 }

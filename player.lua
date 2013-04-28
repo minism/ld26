@@ -41,7 +41,7 @@ function player:setState(state)
         self.anim_size = 6
     elseif state == LIFTING then
         self.sprite = 41
-        self.anim_size = 4
+        self.anim_size = 5
     end
 end
 
@@ -148,9 +148,9 @@ function player:update(dt)
     getmetatable(player).update(self, dt)
 
     if self.state == LIFTING then
-        self.lift_timer = self.lift_timer + dt
-        if self.lift_timer > LIFT_TIME then
-            self.state = CARRY_IDLE
+        if self.anim_frame == 4 then
+        -- if self.lift_timer > LIFT_TIME then
+            self:setState(CARRY_IDLE)
         end
     else
         if self.velx < 0 then
@@ -190,7 +190,7 @@ function player:liftBlock(block)
     self.lift_timer = 0
     self.velx = 0
     self:setState(LIFTING)
-    game:removeEntity(block)
+    game:removeBlock(block)
 end
 
 function player:setBlock()
@@ -214,7 +214,7 @@ function player:throwBlock()
 
     -- Throw at 45 degree angle
     local vec = vector(0, -1)
-    local rotation = self.right and TAU / 8 or -TAU / 8
+    local rotation = self.right and THROW_ANGLE or -THROW_ANGLE
     local vx, vy = vector.rotate(vec, rotation)
     block.velx = vx * THROW_POWER
     block.vely = vy * THROW_POWER
