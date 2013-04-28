@@ -204,3 +204,19 @@ end
 
 function PhysEntity:collideWith(target, side)
 end
+
+
+
+Pusher = PhysEntity:extend()
+
+function Pusher:init(data)
+    getmetatable(Pusher).init(self, data)
+
+    self.blink = 0
+end
+
+
+function Pusher:getColor()
+    local alpha = 1.0 - self.blink
+    return 255, 255 * alpha, 255 * alpha
+end

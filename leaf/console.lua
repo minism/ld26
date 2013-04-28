@@ -87,7 +87,7 @@ end
 function Console:drawLog(width, height)
     local width = width or love.graphics.getWidth()
     local height = height or love.graphics.getHeight()
-    love.graphics.setColor(255, 255, 255)
+    colors.console()
     love.graphics.setFont(self.font)
     for i, message in self.queue:iter_reverse() do
         self.color[message.level]()

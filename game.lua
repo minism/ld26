@@ -6,8 +6,8 @@ REAL_W = 624
 REAL_H = 768
 TAU = math.pi * 2
 BLOCK_SIZE = 16
-WORLD_BLOCKS_X = 9
-WORLD_BLOCKS_Y = 12
+WORLD_BLOCKS_X = 11
+WORLD_BLOCKS_Y = 14
 WORLD_W = BLOCK_SIZE * WORLD_BLOCKS_X
 WORLD_H = BLOCK_SIZE * WORLD_BLOCKS_Y
 CAMERA_SCALE = 3
@@ -36,6 +36,7 @@ require 'player'
 require 'entity'
 require 'block'
 require 'input'
+require 'phase'
 
 game = leaf.Context()
 
@@ -57,29 +58,37 @@ function game:init()
         blockmap = false,
     }
 
+    self.blockmap = {}
+    self.entities = {}
+    player:reset()
+    player.x = 0
+    player.y = WORLD_H - player.h
+    game:loadPhase(1)
+end
+
+
+function game:loadPhase(phase)
+    game.phase = phases[phase]
     game:initWorld()
+
+    if self.phase.pushrate then
+        game:queuePush()
+    end
+
+    if self.phase.droprate then
+        game:queueDrop()
+    end
 end
 
 
 function game:initWorld()
     time:empty()
-
-    -- Setup main game data
+    tween.stopAll()
+    self.pushers = {}
+    self.droppers = {}
     self.blockmap = {}
     self.entities = {}
     self:setStaticBlocks()
-
-    -- Position player
-    player:reset()
-    player.x = 0
-    player.y = WORLD_H - player.h
-
-    -- DEBUG
-    -- self:queueBlock({pos=1})
-    -- time:after(0.1, function() self:queueBlock({pos=2}) end)
-    -- time:after(0.2, function() self:queueBlock({pos=3}) end)
-    self:queueBlock()
-    time:every(BLOCK_TIMER, function() self:queueBlock() end)
 end
 
 
@@ -87,13 +96,13 @@ end
 -- Insert static border blocks for world edge collision
 function game:setStaticBlocks()
     for i=-1, WORLD_BLOCKS_X do
-        local static_block_top = PhysEntity {
+        local static_block_top = Pusher {
             x=i*BLOCK_SIZE,
             y=-BLOCK_SIZE,
             awake = false,
             sprite = i == -1 and 31 or i == WORLD_BLOCKS_X and 32 or 47,
         }
-        local static_block_bot = PhysEntity {
+        local static_block_bot = Pusher {
             x=i*BLOCK_SIZE,
             y=WORLD_H,
             awake = false,
@@ -101,22 +110,27 @@ function game:setStaticBlocks()
         }
         game:addEntity(static_block_top)
         game:addEntity(static_block_bot)
+
+        if i >= 0 and i < WORLD_BLOCKS_X then
+            table.insert(self.droppers, static_block_top)
+            table.insert(self.pushers, static_block_bot)
+        end
     end
     for i=0, WORLD_BLOCKS_Y-1 do
-        local static_block_top = PhysEntity {
+        local static_block_left = Pusher {
             y=i*BLOCK_SIZE,
             x=-BLOCK_SIZE,
             awake = false,
             sprite = 45,
         }
-        local static_block_bot = PhysEntity {
+        local static_block_right = Pusher {
             y=i*BLOCK_SIZE,
             x=WORLD_W,
             awake = false,
             sprite = 46,
         }
-        game:addEntity(static_block_top)
-        game:addEntity(static_block_bot)
+        game:addEntity(static_block_left)
+        game:addEntity(static_block_right)
     end
 end
 
@@ -175,6 +189,12 @@ end
 --
 -- Control
 --
+
+function game:randomColor()
+    return math.random(1, #self.phase.colors)
+end
+
+
 function game:addEntity(entity)
     table.insert(self.entities, entity)
 end
@@ -183,8 +203,95 @@ function game:removeEntity(entity)
     remove_if(self.entities, function(e) return e == entity end)
 end
 
+function game:queuePush()
+    for i, block in ipairs(self.pushers) do
+        block.blink = 1
+        tween(BLOCK_TIMER, block, {blink=0}, 'outCubic')
+    end
+    time:after(BLOCK_TIMER, function() self:pushColumns() end)
+    if self.phase.pushrate then
+        time:after(math.random(unpack(self.phase.pushrate)), function()
+            self:queuePush()
+        end)
+    end
+end
 
-function game:queueBlock(data)
+function game:pushColumns()
+    last_color = nil
+    color_count = 1
+    for col=0, WORLD_BLOCKS_X - 1 do
+
+        local color = game:randomColor()
+        if color == last_color then
+            color_count = color_count + 1
+            if color_count >= 3 then
+                color_count = 1
+                color = (color % #self.phase.colors) + 1
+            end
+        end
+        last_color = color
+
+        local x, y = cr2pos(col, WORLD_BLOCKS_Y - 1)
+        local block = Block { x = x, y = y, color=color }
+        block.grounded = true
+        block.rested = true
+        self:addEntity(block)
+
+        local highest_grounded = nil
+        for i, entity in ipairs(self.entities) do
+            local c, r = entity:getcr()
+            if c == col then
+                if entity.grounded then
+                    if not highest_grounded or entity.y < highest_grounded.y then
+                        highest_grounded = entity
+                    end
+
+                    if entity ~= block then
+                        entity.y = entity.y - BLOCK_SIZE 
+                    end
+                end
+            end
+        end
+
+        for i, entity in ipairs(self.entities) do
+            if entity.awake and not entity.grounded and entity.solid then
+                local a,b,c,d = entity:getbb()
+                local w,x,y,z = highest_grounded:getbb()
+                if rect.intersects(a,b,c,d,w,x,y,z) then
+                    entity.y = highest_grounded.y - entity.h
+                end
+            end
+        end
+
+        if player:getcr() == col then
+            if player.grounded then
+                player.y = player.y - BLOCK_SIZE
+            elseif highest_grounded then
+                local a,b,c,d = player:getbb()
+                local w,x,y,z = highest_grounded:getbb()
+                if rect.intersects(a,b,c,d,w,x,y,z) then
+                    player.y = highest_grounded.y - player.h
+                end
+            end
+        end
+    end
+
+
+    -- Update block map
+    for c=0,WORLD_BLOCKS_X-1 do
+        for r=0,WORLD_BLOCKS_Y-1 do
+            self.blockmap[cr2idx(c,r)] = nil
+        end
+    end
+    for i, entity in ipairs(game.entities) do
+        if entity.block and entity.rested then
+            game:blockRested(entity)
+        end
+    end
+end
+
+
+function game:queueDrop(data)
     local data = data or {}
     local pos = data.pos or math.random(0, WORLD_BLOCKS_X - 1)
     local x = BLOCK_SIZE * pos
@@ -207,6 +314,13 @@ function game:queueBlock(data)
         }
         self:addEntity(block)
     end)
+
+
+    if self.phase.droprate then
+        time:after(math.random(unpack(self.phase.droprate)), function()
+            self:queueDrop()
+        end)
+    end
 end
 
 function game:queueClear(block)
@@ -223,6 +337,8 @@ function game:queueClear(block)
         block.alive = false
     end)
 end
+
+
 
 function game:unsetBlock(block)
     game.blockmap[block:getidx()] = nil
@@ -337,6 +453,8 @@ end
 -- Rendition
 --
 function game:draw()
+    colors.white()
+
     -- Draw in scale
     lg.push()
         lg.scale(CAMERA_SCALE, CAMERA_SCALE)
@@ -388,7 +506,7 @@ end
 
 
 function game:drawHUD()    
-    colors.white()
+    colors.console()
     if self.flags.debug then
         lg.print("FPS: " .. love.timer.getFPS(), 5, 5)
         lg.print("#Timers: " .. #time.timers, 5, 15)
@@ -417,7 +535,7 @@ function game:keypressed(key, unicode)
         self.flags.blockmap = not self.flags.blockmap
     end
     if input.match('init', key) then
-        game:initWorld()
+        game:loadPhase(1)
     end
 end
 

@@ -8,7 +8,7 @@ function Block:init(data)
     self.rested = false
     self.block = true
     self.chaining = false
-    self.color = math.random(1, 3)
+    self.color = game:randomColor()
     self.fade = 0
 
     getmetatable(Block).init(self, data)
@@ -30,7 +30,7 @@ function Block:update(dt)
 end
 
 function Block:getColor()
-    local clr = colors['block_' .. self.color]
+    local clr = game.phase.colors[self.color]
     return color.desaturate(clr, self.fade * 255)
 end
 
