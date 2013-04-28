@@ -11,6 +11,8 @@ WORLD_BLOCKS_Y = 12
 WORLD_W = BLOCK_SIZE * WORLD_BLOCKS_X
 WORLD_H = BLOCK_SIZE * WORLD_BLOCKS_Y
 CAMERA_SCALE = 3
+HUD_OFFSET = 10
+HUD_DIMENSIONS = {0, -2, 8, -2, true}
 SCREEN_W = REAL_W / CAMERA_SCALE
 SCREEN_H = REAL_H / CAMERA_SCALE
 BLOCK_TIMER = 1
@@ -55,7 +57,7 @@ function game:init()
 
     -- Runtime state flags
     self.flags = {
-        debug = true,
+        debug = false,
         showbb = false,
         blockmap = false,
     }
@@ -101,7 +103,7 @@ function game:initWorld()
     self.blockmap = {}
     self.entities = {}
     self:setStaticBlocks()
-
+    self.total_clears = 0
 
     -- Fill with blocks for debugging
     -- local i = 0
@@ -353,6 +355,7 @@ function game:queueClear(block)
     local glare = BlockGlare({x=block.x, y=block.y})
     game:addEntity(glare)
     time:after(CHAIN_TIME, function()
+        self.total_clears = self.total_clears + 1
         self.clears = self.clears + 1
         self:checkClears()
         glare.alive = false
@@ -491,7 +494,7 @@ function game:draw()
         sprite.drawBackground(1, 0, 0)
 
         -- Center world drawing
-        lg.translate((SCREEN_W - WORLD_W) / 2, (SCREEN_H - WORLD_H) / 2)
+        lg.translate((SCREEN_W - WORLD_W) / 2, (SCREEN_H - WORLD_H) / 2 + HUD_OFFSET)
         self:drawWorld()
     lg.pop()
 
@@ -499,28 +502,42 @@ function game:draw()
 end
 
 
+function game:drawFrame(x1, y1, x2, y2, bg)
+    local bs = BLOCK_SIZE
+
+    if bg then
+        for i=x1,x2 do
+            for j=y1,y2 do
+                sprite.drawSprite(7, i*bs, j*bs)
+            end
+        end
+    end
+
+    for i=x1,x2 do
+        sprite.drawSprite(47, i * bs, y1 * bs - bs)
+        sprite.drawSprite(48, i * bs, y2 * bs + bs)
+    end
+    for j=y1,y2 do
+        sprite.drawSprite(45, x1 * bs - bs, j * bs)
+        sprite.drawSprite(46, x2 * bs + bs, j * bs)
+    end
+    sprite.drawSprite(31, x1 * bs - bs, y1 * bs - bs)
+    sprite.drawSprite(32, x2 * bs + bs, y1 * bs - bs)
+    sprite.drawSprite(39, x1 * bs - bs, y2 * bs + bs)
+    sprite.drawSprite(40, x2 * bs + bs, y2 * bs + bs)
+end
+
+
 function game:drawWorld()
     -- Draw level background
-    lg.setScissor((REAL_W - WORLD_W * CAMERA_SCALE) / 2, (REAL_H - WORLD_H * CAMERA_SCALE) / 2, WORLD_W * CAMERA_SCALE, WORLD_H * CAMERA_SCALE)
+    lg.setScissor((REAL_W - WORLD_W * CAMERA_SCALE) / 2, (REAL_H - WORLD_H * CAMERA_SCALE) / 2 + HUD_OFFSET * CAMERA_SCALE, WORLD_W * CAMERA_SCALE, WORLD_H * CAMERA_SCALE)
         sprite.drawScrollingBackground(2, game.ts*self.phasen, 0)
         sprite.drawScrollingBackground(3, game.ts*self.phasen*3, 0)
         sprite.drawScrollingBackground(3, game.ts*self.phasen*5, 64)
     lg.setScissor()
 
-    for i=0,WORLD_BLOCKS_X-1 do
-        local x, y = i * BLOCK_SIZE, -BLOCK_SIZE
-        sprite.drawSprite(47, x, y)
-        sprite.drawSprite(48, x, WORLD_H)
-    end
-    for j=0,WORLD_BLOCKS_Y-1 do
-        local x, y = -BLOCK_SIZE, j * BLOCK_SIZE
-        sprite.drawSprite(45, x, y)
-        sprite.drawSprite(46, WORLD_W, y)
-    end
-    sprite.drawSprite(40, WORLD_W, WORLD_H)
-    sprite.drawSprite(39, -BLOCK_SIZE, WORLD_H)
-    sprite.drawSprite(32, WORLD_W, -BLOCK_SIZE)
-    sprite.drawSprite(31, -BLOCK_SIZE, -BLOCK_SIZE)
+    -- Draw frame
+    game:drawFrame(0, 0, WORLD_BLOCKS_X-1, WORLD_BLOCKS_Y-1)
 
     -- Draw entities
     for i, entity in ipairs(self.entities) do
@@ -541,11 +558,22 @@ function game:drawWorld()
         end
     end
 
+    -- Draw scoreboard
+    game:drawFrame(unpack(HUD_DIMENSIONS))
     player:draw()
 end
 
 
-function game:drawHUD()    
+function game:drawHUD()
+    local hx, hy = 110, 45
+    colors.score1()
+    lg.setFont(assets.font)
+    lg.print("PHASE ", hx, hy)
+    lg.print("BLOCKS ", hx + 200, hy)
+    colors.score2()
+    lg.print(self.phasen, hx + 120, hy)
+    lg.print(self.total_clears, hx + 340, hy)
+
     colors.console()
     if self.flags.debug then
         lg.print("FPS: " .. love.timer.getFPS(), 5, 5)

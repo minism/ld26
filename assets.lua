@@ -16,5 +16,8 @@ function assets.load()
     for k, v in pairs(assets.sfx) do
         v:setVolume(0.5)
     end
+
+
+    assets.font = lg.newFont('font/font.ttf', 36)
 end
 
