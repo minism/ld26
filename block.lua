@@ -46,7 +46,7 @@ BlockHint = Entity:extend()
 
 function BlockHint:init(data)
     self.life = BLOCK_TIMER
-    self.flash_speed = 0.25
+    self.flash_speed = 0.1
 
     getmetatable(BlockHint).init(self, data)
 

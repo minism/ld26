@@ -8,8 +8,10 @@ player.grounded = true
 player.vely = 0
 player.solid = false
 player.z_index = 1
+player.jump_timer = 0
+player.lift_timer = 0
 
-local IDLE, RUNNING = 0, 1
+local IDLE, RUN, CARRY_IDLE, CARRY_RUN, LIFTING = 0, 1, 2, 3, 4
 
 
 function player:reset()
@@ -18,11 +20,22 @@ function player:reset()
 end
 
 function player:setState(state)
+    if state ~= self.state then
+        self:resetAnimation()
+    end
+
+    self.state = state
     if state == IDLE then
         self.sprite = 17
         self.anim_size = 4
-    elseif state == RUNNING then
+    elseif state == CARRY_IDLE then
+        self.sprite = 17 + 4
+        self.anim_size = 4
+    elseif state == RUN then
         self.sprite = 25
+        self.anim_size = 6
+    elseif state == CARRY_RUN then
+        self.sprite = 25 + 8
         self.anim_size = 6
     end
 end
@@ -43,13 +56,17 @@ function player:die()
 end
 
 function player:updateVectors(dt)
-    if input.down('jump') and self.grounded then
+    if input.downFrame('jump') and self.grounded then
+        self.jump_timer = 0
         self.grounded = false
-        self.vely = -JUMP_POWER
+    end
+
+    if input.down('jump') then
+        local alpha = math.min(self.jump_timer / JUMP_TIME, 1.0)
+        self.vely = self.vely - (1.0 - alpha) * JUMP_POWER * dt
     end
 
     self.vely = self.vely + GRAVITY * dt
-
 
     if input.down('left') then
         self.velx = -MOVE_SPEED
@@ -89,6 +106,9 @@ end
 function player:update(dt)
     getmetatable(player).update(self, dt)
 
+    self.jump_timer = self.jump_timer + dt
+    self.lift_timer = self.lift_timer + dt
+
     if self.velx < 0 then
         self.right = false
     elseif self.velx > 0 then
@@ -96,7 +116,7 @@ function player:update(dt)
     end
 
     if math.abs(self.velx) > 0 then
-        self:setState(RUNNING)
+        self:setState(RUN)
     else
         self:setState(IDLE)
     end
@@ -105,16 +125,16 @@ function player:update(dt)
         if self.grounded then
             local block = game:findBlocKUnder(self)
             if block then
-                self:grabBlock(block)
+                self:liftBlock(block)
             end
         end
     end
 end
 
-function player:grabBlock(block)
-    self.x = block.x + (block.w - self.w) / 2
-    self.y = self.y - block.h
-    self.h = self.h + block.h
-    self.holding = block
+function player:liftBlock(block)
+    -- self.x = block.x + (block.w - self.w) / 2
+    -- self.y = self.y - block.h
+    -- self.h = self.h + block.h
+    -- self.holding = block
     game:removeEntity(block)
 end

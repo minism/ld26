@@ -29,6 +29,11 @@ function Entity:init(data)
     getmetatable(Entity).init(self, data)
 end
 
+function Entity:resetAnimation()
+    self.anim_frame = 0
+    self.anim_timer = 0
+end
+
 function Entity:update(dt)
     self.anim_timer = self.anim_timer + dt
     if self.anim_timer > self.anim_speed then
