@@ -2,15 +2,17 @@
 -- Game constants
 --
 
+REAL_W = 624
+REAL_H = 768
 TAU = math.pi * 2
 BLOCK_SIZE = 16
-WORLD_BLOCKS_X = 8
+WORLD_BLOCKS_X = 9
 WORLD_BLOCKS_Y = 12
 WORLD_W = BLOCK_SIZE * WORLD_BLOCKS_X
 WORLD_H = BLOCK_SIZE * WORLD_BLOCKS_Y
 CAMERA_SCALE = 3
-SCREEN_W = 600 / CAMERA_SCALE
-SCREEN_H = 800 / CAMERA_SCALE
+SCREEN_W = REAL_W / CAMERA_SCALE
+SCREEN_H = REAL_H / CAMERA_SCALE
 BLOCK_TIMER = 1
 CHAIN_TIME = 0.5
 CHAIN_SIZE = 3
@@ -46,6 +48,7 @@ function game:init()
     -- Load all assets
     assets.load()
     sprite.load()
+    self.ts = 0
 
     -- Runtime state flags
     self.flags = {
@@ -88,25 +91,29 @@ function game:setStaticBlocks()
             x=i*BLOCK_SIZE,
             y=-BLOCK_SIZE,
             awake = false,
+            sprite = i == -1 and 31 or i == WORLD_BLOCKS_X and 32 or 47,
         }
         local static_block_bot = PhysEntity {
             x=i*BLOCK_SIZE,
             y=WORLD_H,
             awake = false,
+            sprite = i == -1 and 39 or i == WORLD_BLOCKS_X and 40 or 48,
         }
         game:addEntity(static_block_top)
         game:addEntity(static_block_bot)
     end
-    for i=-1, WORLD_BLOCKS_Y do
+    for i=0, WORLD_BLOCKS_Y-1 do
         local static_block_top = PhysEntity {
             y=i*BLOCK_SIZE,
             x=-BLOCK_SIZE,
             awake = false,
+            sprite = 45,
         }
         local static_block_bot = PhysEntity {
             y=i*BLOCK_SIZE,
             x=WORLD_W,
             awake = false,
+            sprite = 46,
         }
         game:addEntity(static_block_top)
         game:addEntity(static_block_bot)
@@ -303,6 +310,7 @@ end
 
 
 function game:update(dt)
+    self.ts = self.ts + dt
     input.update(dt)
     time:update(dt)
     if dt > 0 then
@@ -346,7 +354,11 @@ end
 
 function game:drawWorld()
     -- Draw level background
-    sprite.drawWorldBackground(2, 0, 0)
+    lg.setScissor((REAL_W - WORLD_W * CAMERA_SCALE) / 2, (REAL_H - WORLD_H * CAMERA_SCALE) / 2, WORLD_W * CAMERA_SCALE, WORLD_H * CAMERA_SCALE)
+        sprite.drawScrollingBackground(2, game.ts*5, 0)
+        sprite.drawScrollingBackground(3, game.ts*15, 0)
+        sprite.drawScrollingBackground(3, game.ts*32, 64)
+    lg.setScissor()
 
     -- Draw entities sorted by z index
     for z=0, 3 do

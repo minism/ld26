@@ -11,7 +11,7 @@ function sprite.load()
     end
 
     sprite.backgrounds = {}
-    for i=1,2 do 
+    for i=1,3 do 
         table.insert(sprite.backgrounds, sprite.newBackground(assets.gfx["bg" .. i]))
     end
 end
@@ -27,7 +27,9 @@ function sprite.newBackground(image)
     return {
         image = image,
         quad = lg.newQuad(0, 0, SCREEN_W, SCREEN_H, image:getWidth(), image:getHeight()),
-        worldquad = lg.newQuad(0, 0, WORLD_W, WORLD_H, image:getWidth(), image:getHeight()),
+        scrollable = lg.newQuad(0, 0, SCREEN_W * 2, SCREEN_H * 2, image:getWidth(), image:getHeight()),
+        width = image:getWidth(),
+        height = image:getHeight(),
     }
 end
 
@@ -45,8 +47,10 @@ function sprite.drawBackground(idx, ...)
     lg.drawq(bg.image, bg.quad, ...)
 end
 
-
-function sprite.drawWorldBackground(idx, ...)
+function sprite.drawScrollingBackground(idx, dx, dy, ...)
     local bg = sprite.backgrounds[idx]
-    lg.drawq(bg.image, bg.worldquad, ...)
+    local x = -bg.width + (dx % bg.width)
+    local y = -bg.height + (dy % bg.height)
+    lg.drawq(bg.image, bg.scrollable, x, y, ...)
 end
+

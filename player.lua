@@ -10,7 +10,7 @@ player.solid = false
 player.z_index = 1
 player.lift_timer = 0
 player.jump_timer = 0
-player.jump_fuel = JUMP_FUEL
+player.jump_fuel = 1.0
 
 local IDLE, RUN, CARRY_IDLE, CARRY_RUN, LIFTING = 0, 1, 2, 3, 4
 
