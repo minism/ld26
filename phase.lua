@@ -5,8 +5,8 @@ local c3 = {70, 255, 54}
 
 phases = {
     {
-        -- pushrate = {1,1},
-        -- droprate = {1, 2},
+        pushrate = {4, 8},
+        droprate = {1, 2},
         colors = { c1, c2 },
     },
 }

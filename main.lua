@@ -4,6 +4,7 @@ require 'os'
 tween = require 'lib.tween'
 _ = require 'lib.underscore'
 inspect = require 'lib.inspect'
+require 'lib.slam'
 require 'leaf'
 
 

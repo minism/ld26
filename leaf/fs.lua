@@ -77,7 +77,7 @@ end
 
 -- Load directory tree into a map of love.audio.Source
 function fs.loadSounds(path, callback)
-    return recursiveYieldingLoader(path, love.audio.newSource, callback)
+    return recursiveYieldingLoader(path, function(path) return love.audio.newSource(path, 'static') end, callback)
 end
 
 -- Load directory tree into a map of love.graphics.PixelEffect

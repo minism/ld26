@@ -21,8 +21,8 @@ function Block:update(dt)
 
     if self.grounded and self.velx == 0 and self.vely == 0 and not self.rested then
         -- Block is rested for the first time
-        -- self.rested = true
-        -- game:blockRested(self)
+        self.rested = true
+        game:blockRested(self)
     elseif not self.grounded then
         game:unsetBlock(self)
         self.rested = false
@@ -35,8 +35,16 @@ function Block:getColor()
 end
 
 function Block:collideWith(target, side)
-    if target == player and side == TOP then
+    if target.block and side == TOP and not self._last_grounded then
+        game:sound('drop')
+    elseif target == player and side == TOP then
         player.headblock = self
+    end
+end
+
+function Block:collideFloor()
+    if not self._last_grounded then
+        game:sound('drop')
     end
 end
 

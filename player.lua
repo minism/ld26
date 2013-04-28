@@ -80,6 +80,7 @@ end
 
 function player:die()
     console:write("Player died")
+    game:sound 'die'
     self:reset()
     self.x = 0
     self.y = 0
@@ -183,7 +184,7 @@ function player:update(dt)
 end
 
 function player:liftBlock(block)
-    -- self.x = block.x + (block.w - self.w) / 2
+    game:sound 'grab'
     self.y = self.y + block.h
     block.rested = false
     self.holding = block
@@ -194,6 +195,7 @@ function player:liftBlock(block)
 end
 
 function player:setBlock()
+    game:sound 'ungrab'
     local block = self.holding
     self.holding = nil
     local col, row = self:getcentercr()
@@ -207,6 +209,7 @@ function player:setBlock()
 end
 
 function player:throwBlock()
+    game:sound 'throw'
     local block = self.holding
     self.holding = nil
     block.x = self.x - (block.w - self.w) / 2

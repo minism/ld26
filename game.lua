@@ -23,6 +23,7 @@ JUMP_TIME = 10 / 60
 THROW_POWER = 175
 THROW_ANGLE = TAU / 8
 ANIM_SPEED = 1 / 30
+SOUND_DEBOUNCE = 1 / 20
 LIFT_TIME = ANIM_SPEED * 4
 LEFT, TOP, RIGHT, BOTTOM = 0, 1, 2, 3
 
@@ -57,6 +58,8 @@ function game:init()
         showbb = false,
         blockmap = false,
     }
+
+    self.soundtimers = {}
 
     self.blockmap = {}
     self.entities = {}
@@ -421,6 +424,8 @@ function game:makeChain(block)
     for block, v in pairs(chainset) do
         game:queueClear(block)
     end
+
+    time:after(CHAIN_TIME, function() self:sound 'chain' end)
 end
 
 
@@ -436,6 +441,11 @@ function game:update(dt)
     self.ts = self.ts + dt
     input.update(dt)
     time:update(dt)
+
+    for k, v in pairs(self.soundtimers) do
+        self.soundtimers[k] = v - dt
+    end
+
     if dt > 0 then
         tween.update(dt)
     end
@@ -518,6 +528,15 @@ function game:drawHUD()
         console:drawLog()
     end
 end
+
+
+function game:sound(sound)
+    if not self.soundtimers[sound] or self.soundtimers[sound] < 0 then
+        self.soundtimers[sound] = SOUND_DEBOUNCE
+        assets.sfx[sound]:play()
+    end
+end
+
 
 
 

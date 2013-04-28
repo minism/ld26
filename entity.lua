@@ -143,6 +143,7 @@ function PhysEntity:step(dt)
     self:updateVectors(dt)
     local nx = self.x + self.velx * dt
     local ny = self.y + self.vely * dt
+    self._last_grounded = self.grounded
     self.grounded = false
 
     -- Check entity collision
@@ -170,6 +171,7 @@ function PhysEntity:step(dt)
         self.grounded = true
         ny = WORLD_H - self.h
         self.vely = 0
+        self:collideFloor()
     end
 
     -- Check player collision
@@ -226,6 +228,9 @@ function PhysEntity:getbbFor(entity)
 end
 
 function PhysEntity:collideWith(target, side)
+end
+
+function PhysEntity:collideFloor()
 end
 
 
