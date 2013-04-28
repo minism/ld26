@@ -18,50 +18,50 @@ local clr = {
         bg={200,255,200},
     },
     {
-        {90, 0, 138},
-        {0, 115, 138},
-        {0, 161, 46},
-        {158, 39, 6},
+        {192, 210, 219},
+        {244, 146, 30},
+        {62, 107, 133},
+        {158, 0, 244},
         bg={61,4,89},
     }
 }
 
 
 phases = {
-    -- {
-    --     pushrate = {5, 10},
-    --     colors = clr[1],
-    --     color_limit = 2,
-    -- },
-    -- {
-    --     pushrate = {6, 12},
-    --     droprate = {3, 6},
-    --     colors = clr[1],
-    --     color_limit = 2,
-    -- },
-    -- {
-    --     pushrate = {6, 12},
-    --     droprate = {3, 6},
-    --     colors = clr[1],
-    -- },
+    {
+        pushrate = {5, 10},
+        colors = clr[1],
+        color_limit = 2,
+    },
+    {
+        pushrate = {6, 12},
+        droprate = {3, 6},
+        colors = clr[1],
+        color_limit = 2,
+    },
+    {
+        pushrate = {6, 12},
+        droprate = {3, 6},
+        colors = clr[1],
+    },
 
-    -- {
-    --     droprate = {0.75, 1},
-    --     colors = clr[2],
-    --     color_limit = 2,
-    -- },
-    -- {
-    --     droprate = {2, 4},
-    --     pushrate = {4, 8},
-    --     bombchance = 1 / 10,
-    --     colors = clr[2],
-    -- },
-    -- {
-    --     droprate = {1, 2},
-    --     pushrate = {4, 6},
-    --     bombchance = 1 / 10,
-    --     colors = clr[2],
-    -- },
+    {
+        droprate = {0.75, 1},
+        colors = clr[2],
+        color_limit = 2,
+    },
+    {
+        droprate = {2, 4},
+        pushrate = {4, 8},
+        bombchance = 1 / 10,
+        colors = clr[2],
+    },
+    {
+        droprate = {1, 2},
+        pushrate = {4, 6},
+        bombchance = 1 / 10,
+        colors = clr[2],
+    },
 
     {
         pushrate = {3, 6},
@@ -69,7 +69,6 @@ phases = {
         colors = clr[3],
         bombchance = 1 / 6,
     },
-
     {
         droprate = {4, 6},
         pushrate = {3, 6},
@@ -77,12 +76,32 @@ phases = {
         colors = clr[3],
         bombchance = 1 / 6,
     },
-
     {
         droprate = {0.5, 1},
         batrate  = {2, 8},
         colors = clr[3],
-        bombchance = 1 / 12,
+        bombchance = 1 / 20,
+    },
+
+    {
+        pushrate = {3, 5},
+        colors = clr[4],
+    },
+    {
+        droprate = {1, 3},
+        pushrate = {2, 4},
+        colors = clr[4],
+        bombchance = 1 / 5,
+    },
+    {
+        batrate = {1.5, 3.5},
+        pushrate = {3, 6},
+        colors = clr[4],
+    },
+    {
+        batrate = {1, 2},
+        droprate = {0.33, 0.66},
+        bombchance = 1 / 25,
     },
 }
 
