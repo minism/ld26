@@ -16,7 +16,7 @@ HUD_DIMENSIONS = {0, -2, 8, -2, true}
 SCREEN_W = REAL_W / CAMERA_SCALE
 SCREEN_H = REAL_H / CAMERA_SCALE
 BLOCK_TIMER = 0.8
-BASE_CLEARS = 30
+BASE_CLEARS = 25
 CHAIN_TIME = 0.5
 CHAIN_SIZE = 3
 GRAVITY = 600
@@ -494,13 +494,13 @@ end
 -- Rendition
 --
 function game:draw()
-    colors.white()
-
     -- Draw in scale
     lg.push()
         lg.scale(CAMERA_SCALE, CAMERA_SCALE)
         -- Draw a frame
+        lg.setColor(self.phase.colors.bg)
         sprite.drawBackground(1, 0, 0)
+        colors.white()
 
         -- Center world drawing
         lg.translate((SCREEN_W - WORLD_W) / 2, (SCREEN_H - WORLD_H) / 2 + HUD_OFFSET)
