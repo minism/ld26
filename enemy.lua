@@ -43,12 +43,7 @@ function Bat:updateVectors(dt)
 end
 
 function Bat:collideWith(entity, direction)
-    if entity == player then
-        player:die()
-    elseif entity.block then
-        if entity.thrown then
-            self:kill()
-        end
+    if entity.block then
         if direction == LEFT or direction == RIGHT then
             self.velx = -self._lastvx
         else
@@ -63,6 +58,24 @@ function Bat:collideGeo(direction)
     else
         self.vely = -self._lastvy
     end
-    console:write(self.velx, self.vely)
+end
+
+
+function Bat:update(dt)
+    getmetatable(Bat).update(self, dt)
+
+    local a,b,c,d = self:getbb()
+    for i, entity in ipairs(game.entities) do
+        if entity == player or entity.block then
+            local w,x,y,z = entity:getbb()
+            if rect.intersects(a,b,c,d,w,x,y,z) then
+                if entity == player then
+                    player:die()
+                elseif entity.block and entity.thrown then
+                    self:kill()
+                end
+            end
+        end
+    end
 end
 

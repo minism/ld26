@@ -23,6 +23,7 @@ local clr = {
 phases = {
     -- Debug
     {
+        batrate = {2,2},
         droprate = {1, 1},
         bombchance = 1/10,
         colors = clr[1],

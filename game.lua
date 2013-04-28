@@ -19,7 +19,7 @@ BLOCK_TIMER = 0.8
 BASE_CLEARS = 25
 CHAIN_TIME = 0.5
 CHAIN_SIZE = 3
-GRAVITY = 550
+GRAVITY = 575
 MOVE_SPEED = 60
 JUMP_POWER = 225
 JUMP_TIME = 10 / 60
@@ -155,13 +155,24 @@ end
 -- Query
 --
 
-function game:findBlockUnder(source)
+function game:findBlockDir(source, direction)
     local sl,st,sr,sb = source:getbb()
     for i, entity in ipairs(self.entities) do
         if entity.block and entity.grounded and not entity.chaining then
             local l,t,r,b = entity:getbb()
-            if overlaps(sl, sr, l, r) and sb == t then
-                return entity
+
+            if direction == BOTTOM then
+                if overlaps(sl, sr, l, r) and sb == t then
+                    return entity
+                end
+            elseif direction == LEFT then
+                if overlaps(st, sb, t, b) and sl == r then
+                    return entity
+                end
+            elseif direction == RIGHT then
+                if overlaps(st, sb, t, b) and sr == l then
+                    return entity
+                end
             end
         end
     end

@@ -79,7 +79,6 @@ function player:draw()
 end
 
 function player:die()
-    console:write("Player died")
     game:sound 'die'
     self:reset()
     game:respawn()
@@ -168,10 +167,22 @@ function player:update(dt)
 
     if input.downFrame('grab') and self.state ~= LIFTING then
         if self.grounded and not self.holding then
-            local block = game:findBlockUnder(self)
-            if block then
-                self:liftBlock(block)
+            local block = nil
+            local under = false
+            if input.down('left') then
+                block = game:findBlockDir(self, LEFT)
+            elseif input.down('right') then
+                block = game:findBlockDir(self, RIGHT)
             end
+
+            if not block then
+                block = game:findBlockDir(self, BOTTOM)
+                under = true
+            end
+            if block then
+                self:liftBlock(block, under)
+            end
+
         elseif self.holding then
             self:setBlock()
         end
@@ -198,9 +209,13 @@ function player:collideWith(target)
     end
 end
 
-function player:liftBlock(block)
+function player:liftBlock(block, under)
     game:sound 'grab'
-    self.y = self.y + block.h
+
+    if under then
+        self.y = self.y + block.h
+    end
+
     block.rested = false
     self.holding = block
     self.lift_timer = 0
