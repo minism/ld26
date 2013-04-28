@@ -59,7 +59,7 @@ phases = {
     {
         droprate = {1, 2},
         pushrate = {4, 6},
-        bombchance = 1 / 10,
+        bombchance = 1 / 14,
         colors = clr[2],
     },
 
@@ -67,7 +67,6 @@ phases = {
         pushrate = {3, 6},
         batrate  = {3, 8},
         colors = clr[3],
-        bombchance = 1 / 6,
     },
     {
         droprate = {4, 6},
@@ -78,7 +77,7 @@ phases = {
     },
     {
         droprate = {0.5, 1},
-        batrate  = {2, 8},
+        batrate  = {3, 8},
         colors = clr[3],
         bombchance = 1 / 20,
     },
@@ -94,14 +93,26 @@ phases = {
         bombchance = 1 / 5,
     },
     {
-        batrate = {1.5, 3.5},
+        batrate = {2, 4},
         pushrate = {3, 6},
         colors = clr[4],
     },
     {
-        batrate = {1, 2},
-        droprate = {0.33, 0.66},
-        bombchance = 1 / 25,
+        batrate = {3, 6},
+        droprate = {0.5, 0.75},
+        bombchance = 1 / 16,
+        colors = clr[4]
     },
+
+
+
+    -- Infinite level
+    {
+        batrate = {3, 6},
+        droprate = {1, 3},
+        pushrate = {2, 4},
+        bombchance = 1 / 10,
+        colors = clr[1],
+    }
 }
 

@@ -16,6 +16,7 @@ HUD_DIMENSIONS = {0, -2, 8, -2, true}
 SCREEN_W = REAL_W / CAMERA_SCALE
 SCREEN_H = REAL_H / CAMERA_SCALE
 BLOCK_TIMER = 0.8
+LIVES = 5
 BASE_CLEARS = 25
 CHAIN_TIME = 0.5
 CHAIN_SIZE = 3
@@ -23,6 +24,7 @@ GRAVITY = 575
 MOVE_SPEED = 60
 JUMP_POWER = 225
 JUMP_TIME = 10 / 60
+BATLIMIT = 5
 THROW_POWER = 175
 THROW_ANGLE = TAU / 8
 ANIM_SPEED = 1 / 30
@@ -42,6 +44,7 @@ require 'block'
 require 'input'
 require 'phase'
 require 'enemy'
+require 'menu'
 
 game = leaf.Context()
 
@@ -111,7 +114,7 @@ function game:initWorld()
     self.entities = {}
     self:setStaticBlocks()
     self.total_clears = 0
-
+    self.lives = LIVES
 end
 
 
@@ -207,6 +210,12 @@ end
 --
 
 function game:respawn()
+    self.lives = self.lives - 1
+    if self.lives <= 0 then
+        menu.lose()
+    end
+
+
     local center = math.floor(WORLD_BLOCKS_X / 2)
     -- for i=0, WORLD_BLOCKS_X do
     player.x, player.y = cr2pos(center, 0)
@@ -229,7 +238,15 @@ function game:removeEntity(entity)
 end
 
 function game:queueBat()
-    self:addEntity(Bat())
+    local ct = 0
+    for i, entity in ipairs(self.entities) do
+        if entity.enemy then 
+            ct = ct + 1
+        end
+    end
+    if ct < BATLIMIT then
+        self:addEntity(Bat())
+    end
 
     local queue_phase = self.phasen
     if self.phase.batrate then
