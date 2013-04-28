@@ -66,14 +66,10 @@ function Bat:update(dt)
 
     local a,b,c,d = self:getbb()
     for i, entity in ipairs(game.entities) do
-        if entity == player or entity.block then
+        if entity.block and entity.thrown then
             local w,x,y,z = entity:getbb()
             if rect.intersects(a,b,c,d,w,x,y,z) then
-                if entity == player then
-                    player:die()
-                elseif entity.block and entity.thrown then
-                    self:kill()
-                end
+                self:kill()
             end
         end
     end

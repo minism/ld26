@@ -242,16 +242,36 @@ function player:throwBlock()
     game:sound 'throw'
     local block = self.holding
     self.holding = nil
-    block.x = self.x - (block.w - self.w) / 2
+    block.x = self.x
+    if self.right then
+        block.x = self.x - block.w + self.w
+    end
     block.y = self.y - block.h
     block.thrown = true
 
     -- Throw at 45 degree angle
     local vec = vector(0, -1)
     local rotation = self.right and THROW_ANGLE or -THROW_ANGLE
+
+    -- Arc upwards a bit if jumping
+    if input.down('jump') then
+        rotation = rotation * 0.75
+    end
+
     local vx, vy = vector.rotate(vec, rotation)
     block.velx = vx * THROW_POWER
     block.vely = vy * THROW_POWER
 
     game:addEntity(block)
+
+    -- Check for X snap
+    -- for i, entity in ipairs(game.entities) do
+    --     local l,r,t,b = entity:getbb()
+    --     if overlaps(block.y, block.y+block.h, t, b) then
+    --         if overlaps(block.x, block.x+block.w, l, r) then
+    --             block.x = r
+    --         end
+    --     end
+    -- end
+
 end
