@@ -253,7 +253,7 @@ function game:pushColumns()
             color_count = color_count + 1
             if color_count >= 3 then
                 color_count = 1
-                color = (color % self.phase.color_limit or #self.phase.colors) + 1
+                color = (color % (self.phase.color_limit or #self.phase.colors)) + 1
             end
         end
         last_color = color
