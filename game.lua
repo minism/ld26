@@ -94,6 +94,7 @@ function game:loadPhase(phasen)
 end
 
 function game:nextPhase()
+    game:sound 'phase'
     self:loadPhase(self.phasen + 1)
 end
 
@@ -233,8 +234,10 @@ end
 function game:queuePush()
     self.push_timer = 0
     local faller = PhysEntity { x = -BLOCK_SIZE, y = 0, sprite = 55}
+    game:sound 'fall'
     self:addEntity(faller)
     time:after(BLOCK_TIMER, function() 
+        game:sound 'push'
         self:pushColumns() 
         faller.alive = false
     end)
