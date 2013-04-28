@@ -19,7 +19,7 @@ BLOCK_TIMER = 0.8
 BASE_CLEARS = 25
 CHAIN_TIME = 0.5
 CHAIN_SIZE = 3
-GRAVITY = 600
+GRAVITY = 550
 MOVE_SPEED = 60
 JUMP_POWER = 225
 JUMP_TIME = 10 / 60
@@ -194,6 +194,14 @@ end
 --
 -- Control
 --
+
+function game:respawn()
+    local center = math.floor(WORLD_BLOCKS_X / 2)
+    -- for i=0, WORLD_BLOCKS_X do
+    player.x, player.y = cr2pos(center, 0)
+end
+
+
 
 function game:checkClears()
     if self.clears > BASE_CLEARS + (self.phasen - 1) * 5 then

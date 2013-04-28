@@ -82,8 +82,7 @@ function player:die()
     console:write("Player died")
     game:sound 'die'
     self:reset()
-    self.x = 0
-    self.y = 0
+    game:respawn()
 end
 
 function player:updateVectors(dt)
