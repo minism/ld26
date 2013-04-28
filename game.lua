@@ -6,8 +6,8 @@ REAL_W = 624
 REAL_H = 768
 TAU = math.pi * 2
 BLOCK_SIZE = 16
-WORLD_BLOCKS_X = 11
-WORLD_BLOCKS_Y = 14
+WORLD_BLOCKS_X = 9
+WORLD_BLOCKS_Y = 12
 WORLD_W = BLOCK_SIZE * WORLD_BLOCKS_X
 WORLD_H = BLOCK_SIZE * WORLD_BLOCKS_Y
 CAMERA_SCALE = 3
@@ -84,26 +84,24 @@ end
 function game:initWorld()
     time:empty()
     tween.stopAll()
-    self.pushers = {}
-    self.droppers = {}
     self.blockmap = {}
     self.entities = {}
     self:setStaticBlocks()
 
 
-    local i = 0
-    for c=0, WORLD_BLOCKS_X - 1 do
-        for r=1, WORLD_BLOCKS_Y - 1 do
-            i = i + 1
-            local color = i % #self.phase.colors + 1
-            local x, y = cr2pos(c,r)
-            local block = Block {
-                x = x,
-                y = y,
-            }
-            self:addEntity(block)
-        end
-    end
+    -- local i = 0
+    -- for c=0, WORLD_BLOCKS_X - 1 do
+    --     for r=1, WORLD_BLOCKS_Y - 1 do
+    --         i = i + 1
+    --         local color = i % #self.phase.colors + 1
+    --         local x, y = cr2pos(c,r)
+    --         local block = Block {
+    --             x = x,
+    --             y = y,
+    --         }
+    --         self:addEntity(block)
+    --     end
+    -- end
 
 
 end
@@ -112,43 +110,38 @@ end
 
 -- Insert static border blocks for world edge collision
 function game:setStaticBlocks()
-    for i=-1, WORLD_BLOCKS_X do
-        local static_block_top = Pusher {
-            x=i*BLOCK_SIZE,
-            y=-BLOCK_SIZE,
-            awake = false,
-            sprite = i == -1 and 31 or i == WORLD_BLOCKS_X and 32 or 47,
-        }
-        local static_block_bot = Pusher {
-            x=i*BLOCK_SIZE,
-            y=WORLD_H,
-            awake = false,
-            sprite = i == -1 and 39 or i == WORLD_BLOCKS_X and 40 or 48,
-        }
-        game:addEntity(static_block_top)
-        game:addEntity(static_block_bot)
-
-        if i >= 0 and i < WORLD_BLOCKS_X then
-            table.insert(self.droppers, static_block_top)
-            table.insert(self.pushers, static_block_bot)
-        end
-    end
-    for i=0, WORLD_BLOCKS_Y-1 do
-        local static_block_left = Pusher {
-            y=i*BLOCK_SIZE,
-            x=-BLOCK_SIZE,
-            awake = false,
-            sprite = 45,
-        }
-        local static_block_right = Pusher {
-            y=i*BLOCK_SIZE,
-            x=WORLD_W,
-            awake = false,
-            sprite = 46,
-        }
-        game:addEntity(static_block_left)
-        game:addEntity(static_block_right)
-    end
+    local static_block_top = Pusher {
+        x=-BLOCK_SIZE,
+        y=-BLOCK_SIZE,
+        w=WORLD_W + BLOCK_SIZE * 2,
+        awake = false,
+        sprite = i == -1 and 31 or i == WORLD_BLOCKS_X and 32 or 47,
+    }
+    local static_block_bot = Pusher {
+        x=-BLOCK_SIZE,
+        y=WORLD_H,
+        w=WORLD_W + BLOCK_SIZE * 2,
+        awake = false,
+        sprite = i == -1 and 39 or i == WORLD_BLOCKS_X and 40 or 48,
+    }
+    game:addEntity(static_block_top)
+    game:addEntity(static_block_bot)
+    local static_block_left = Pusher {
+        y=0,
+        x=-BLOCK_SIZE,
+        h=WORLD_H,
+        awake = false,
+        sprite = 45,
+    }
+    local static_block_right = Pusher {
+        y=0,
+        x=WORLD_W,
+        h=WORLD_H,
+        awake = false,
+        sprite = 46,
+    }
+    game:addEntity(static_block_left)
+    game:addEntity(static_block_right)
 end
 
 
@@ -221,10 +214,6 @@ function game:removeEntity(entity)
 end
 
 function game:queuePush()
-    for i, block in ipairs(self.pushers) do
-        block.blink = 1
-        tween(BLOCK_TIMER, block, {blink=0}, 'outCubic')
-    end
     time:after(BLOCK_TIMER, function() self:pushColumns() end)
     if self.phase.pushrate then
         time:after(math.random(unpack(self.phase.pushrate)), function()

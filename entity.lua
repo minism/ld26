@@ -135,7 +135,10 @@ function PhysEntity:updateVectors(dt)
     self.vely = self.vely + GRAVITY * dt
 end
 
+
 -- Move according to velocity vectors, and check for collision
+local thresh = BLOCK_SIZE * 3
+local mid = BLOCK_SIZE / 2
 function PhysEntity:step(dt)
     self:updateVectors(dt)
     local nx = self.x + self.velx * dt
@@ -145,8 +148,28 @@ function PhysEntity:step(dt)
     -- Check entity collision
     for i, entity in ipairs(game.entities) do
         if entity ~= self and entity.collision then
-            nx, ny = self:projectCollision(nx, ny, entity)
+            if math.abs(self.x + mid - entity.x + mid) < thresh and
+               math.abs(self.y + mid - entity.y + mid) < thresh then
+                nx, ny = self:projectCollision(nx, ny, entity)
+            end
         end
+    end
+
+    -- Check geometry collision
+    if self.x >= 0 and nx < 0 then
+        nx = 0
+        self.velx = 0
+    elseif self.x + self.w <= WORLD_W and nx + self.w > WORLD_W then
+        nx = WORLD_W - self.w
+        self.velx = 0
+    end
+    if self.y >= 0 and ny < 0 then
+        ny = 0
+        self.vely = 0
+    elseif self.y + self.h <= WORLD_H and ny + self.h > WORLD_H then
+        self.grounded = true
+        ny = WORLD_H - self.h
+        self.vely = 0
     end
 
     -- Check player collision
@@ -208,15 +231,3 @@ end
 
 
 Pusher = PhysEntity:extend()
-
-function Pusher:init(data)
-    getmetatable(Pusher).init(self, data)
-
-    self.blink = 0
-end
-
-
-function Pusher:getColor()
-    local alpha = 1.0 - self.blink
-    return 255, 255 * alpha, 255 * alpha
-end
