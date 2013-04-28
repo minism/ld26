@@ -187,6 +187,7 @@ end
 
 function PhysEntity:projectCollision(nx, ny, entity)
     local l, t, r, b = self:getbbFor(entity)
+    local ncollide = true
 
     -- Check x axis collisions
     if overlaps(self.y, self.y + self.h, t, b) then
@@ -196,12 +197,14 @@ function PhysEntity:projectCollision(nx, ny, entity)
                 self.velx = 0
             end
             self:collideWith(entity, LEFT)
+            ncollide = false
         elseif self.x >= r and nx < r then
             if entity.solid then
                 nx = r
                 self.velx = 0
             end
             self:collideWith(entity, RIGHT)
+            ncollide = false
         end
     end
 
@@ -214,15 +217,36 @@ function PhysEntity:projectCollision(nx, ny, entity)
                 self.grounded = true
             end
             self:collideWith(entity, TOP)
+            ncollide = false
         elseif self.y >= b and ny < b then
             if entity.solid then
                 ny = b
                 self.vely = 0
             end
             self:collideWith(entity, BOTTOM)
+            ncollide = false
         end
     end
 
+    -- Check corner collisions
+    -- if ncollide then
+    --     if overlaps(ny, ny + self.h, t, b) and overlaps(nx, nx + self.w, l, r) then
+    --         if self.y < t then
+    --             if entity.solid then
+    --                 ny = t - self.h
+    --                 self.vely = 0
+    --                 self.grounded = true
+    --             end
+    --             self:collideWith(entity, TOP)
+    --         else
+    --             if entity.solid then
+    --                 ny = b
+    --                 self.vely = 0
+    --             end
+    --             self:collideWith(entity, RIGHT)
+    --         end
+    --     end
+    -- end
     return nx, ny
 end
 

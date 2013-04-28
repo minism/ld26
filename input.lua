@@ -2,7 +2,7 @@ input = {
     keys = {
         left = {'a', 'left'},
         right = {'d', 'right'},
-        jump = {'w', 'space', 'up'},
+        jump = {'w', ' ', 'up'},
         grab = {'j', 'z'},
         throw = {'k', 'x'},
 

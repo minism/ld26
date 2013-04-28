@@ -333,12 +333,20 @@ function game:queueDrop(data)
     }
     self:addEntity(blockHint)
 
-    -- Queue block
-    time:after(BLOCK_TIMER, function() 
-        local block = Block {
+    local block = nil
+    if self.phase.bombchance and math.random() < self.phase.bombchance then
+        block = Bomb {
+            x=x, y=0
+        }
+    else
+        block = Block {
             x = x,
             y = 0,
         }
+    end
+
+    -- Queue block
+    time:after(BLOCK_TIMER, function() 
         self:addEntity(block)
     end)
 
@@ -402,6 +410,7 @@ function game:blockRested(block)
             if query(qx, row) then
                 matches = matches + 1
                 if matches >= CHAIN_SIZE then
+                    game:sound 'match'
                     return game:makeChain(block)
                 end
             else
@@ -416,6 +425,7 @@ function game:blockRested(block)
             if query(col, qy) then
                 matches = matches + 1
                 if matches >= CHAIN_SIZE then
+                    game:sound 'match'
                     return game:makeChain(block)
                 end
             else
@@ -446,6 +456,17 @@ function game:makeChain(block)
 
     for block, v in pairs(chainset) do
         game:queueClear(block)
+
+        if block.bomb then
+            for c=0,WORLD_BLOCKS_X-1 do
+                for r=0,WORLD_BLOCKS_Y-1 do
+                    local b = self.blockmap[cr2idx(c,r)]
+                    if b and b.color == block.color then
+                        game:queueClear(b)
+                    end
+                end
+            end
+        end
     end
 
     time:after(CHAIN_TIME, function() self:sound 'chain' end)
@@ -498,7 +519,7 @@ function game:draw()
     lg.push()
         lg.scale(CAMERA_SCALE, CAMERA_SCALE)
         -- Draw a frame
-        lg.setColor(self.phase.colors.bg)
+        lg.setColor(self.phase.colors.bg or colors.white)
         sprite.drawBackground(1, 0, 0)
         colors.white()
 

@@ -181,6 +181,16 @@ function player:update(dt)
     if input.downFrame('throw') and self.state ~= LIFTING and self.holding then
         self:throwBlock()
     end
+
+    for i, entity in ipairs(game.entities) do
+        if entity.enemy then
+            local a,b,c,d = self:getbb()
+            local w,x,y,z = entity:getbb()
+            if rect.intersects(a,b,c,d,w,x,y,z) then
+                entity.alive = false
+            end
+        end
+    end
 end
 
 function player:collideWith(target)

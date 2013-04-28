@@ -63,6 +63,15 @@ function Block:updateVectors(dt)
 end
 
 
+Bomb = Block:extend()
+
+function Bomb:init(data)
+    getmetatable(Bomb).init(self, data)
+
+    self.bomb = true
+    self.sprite = 6
+end
+
 
 
 
