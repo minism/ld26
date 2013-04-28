@@ -1,6 +1,11 @@
 require 'math'
 
 
+function randrange(t)
+    local r = math.random()
+    return r * (t[2] - t[1]) + t[1]
+end
+
 function constrain(value, low, high)
     return math.max(low, math.min(value, high))
 end

@@ -233,7 +233,7 @@ function game:queueBat()
 
     local queue_phase = self.phasen
     if self.phase.batrate then
-        time:after(math.random(unpack(self.phase.batrate)), function()
+        time:after(randrange(self.phase.batrate), function()
             if self.phasen == queue_phase then
                 self:queueBat()
             end
@@ -254,7 +254,7 @@ function game:queuePush()
 
     local queue_phase = self.phasen
     if self.phase.pushrate then
-        time:after(math.random(unpack(self.phase.pushrate)), function()
+        time:after(randrange(self.phase.pushrate), function()
             if self.phasen == queue_phase then
                 self:queuePush()
             end
@@ -372,7 +372,7 @@ function game:queueDrop(data)
 
     local queue_phase = self.phasen
     if self.phase.droprate then
-        time:after(math.random(unpack(self.phase.droprate)), function()
+        time:after(randrange(self.phase.droprate), function()
             if self.phasen == queue_phase then
                 self:queueDrop()
             end

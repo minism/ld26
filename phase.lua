@@ -21,25 +21,24 @@ local clr = {
 
 
 phases = {
+    -- {
+    --     pushrate = {5, 10},
+    --     colors = clr[1],
+    --     color_limit = 2,
+    -- },
+    -- {
+    --     pushrate = {6, 12},
+    --     droprate = {3, 6},
+    --     colors = clr[1],
+    --     color_limit = 2,
+    -- },
+    -- {
+    --     pushrate = {6, 12},
+    --     droprate = {3, 6},
+    --     colors = clr[1],
+    -- },
     {
-        pushrate = {5, 10},
-        colors = clr[1],
-        color_limit = 2,
-    },
-    {
-        pushrate = {6, 12},
-        droprate = {3, 6},
-        colors = clr[1],
-        color_limit = 2,
-    },
-    {
-        pushrate = {6, 12},
-        droprate = {3, 6},
-        colors = clr[1],
-    },
-    {
-        droprate = {3, 6},
-        pushrate = {4, 8},
+        droprate = {1, 1.5},
         colors = clr[2],
     },
     {
