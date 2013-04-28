@@ -26,7 +26,7 @@ function player:setState(state)
 
     self.state = state
     if state == IDLE then
-        self.sprite = 17
+        self.sprite = 25+16
         self.anim_size = 4
     elseif state == CARRY_IDLE then
         self.sprite = 17 + 4
@@ -37,6 +37,9 @@ function player:setState(state)
     elseif state == CARRY_RUN then
         self.sprite = 25 + 8
         self.anim_size = 6
+    elseif state == LIFING then
+        self.sprite = 25 + 16
+        self.anim_size = 4
     end
 end
 
