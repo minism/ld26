@@ -23,11 +23,12 @@ WORLD_H = BLOCK_SIZE * WORLD_BLOCKS_Y
 CAMERA_SCALE = 3
 SCREEN_W = 600 / CAMERA_SCALE
 SCREEN_H = 800 / CAMERA_SCALE
-BLOCK_TIMER = 0.5
-GRAVITY = 300
+BLOCK_TIMER = 0.75
+CHAIN_TIME = 0.5
+CHAIN_SIZE = 3
+GRAVITY = 250
 MOVE_SPEED = 60
-JUMP_POWER = 150
-
+JUMP_POWER = 120
 LEFT, TOP, RIGHT, BOTTOM = 0, 1, 2, 3
 
 
@@ -54,6 +55,7 @@ function game:initWorld()
     time:empty()
 
     -- Setup main game data
+    self.blockmap = {}
     self.entities = {}
     self:setStaticBlocks()
 
@@ -64,7 +66,9 @@ function game:initWorld()
 
     -- DEBUG
     -- self:queueBlock({pos=1})
-    self:queueBlock()
+    -- time:after(0.1, function() self:queueBlock({pos=2}) end)
+    -- time:after(0.2, function() self:queueBlock({pos=3}) end)
+    -- self:queueBlock()
     time:every(BLOCK_TIMER, function() self:queueBlock() end)
 end
 
@@ -114,8 +118,8 @@ end
 
 function game:queueBlock(data)
     local data = data or {}
-    local pos = data.pos or math.random(1, WORLD_BLOCKS_X)
-    local x = BLOCK_SIZE * (pos - 1)
+    local pos = data.pos or math.random(0, WORLD_BLOCKS_X - 1)
+    local x = BLOCK_SIZE * pos
 
     -- Create block hitn 
     local highest_block = game:getHighestBlock(pos)
@@ -137,9 +141,23 @@ function game:queueBlock(data)
     end)
 end
 
+function game:queueClear(block)
+    -- Remove from block map immediately
+    game.blockmap[block:getidx()] = nil
+
+    -- Queue animation and delete
+    tween(CHAIN_TIME, block, {fade=1}, 'inQuad')
+    local glare = BlockGlare({x=block.x, y=block.y})
+    game:addEntity(glare)
+    time:after(CHAIN_TIME, function()
+        glare.alive = false
+        block.alive = false
+    end)
+end
+
 
 function game:getHighestBlock(column)
-    local x = (column - 1) * BLOCK_SIZE + 1
+    local x = column * BLOCK_SIZE + 1
     for row=0, WORLD_BLOCKS_Y-1 do
         local y = row*BLOCK_SIZE
         for i, entity in ipairs(self.entities) do
@@ -154,14 +172,85 @@ function game:getHighestBlock(column)
 end
 
 
+function game:blockRested(block)
+    -- Insert into blockmap
+    local col, row = block:getcr()
+    local idx = block:getidx()
+    self.blockmap[idx] = block
+
+    -- Attempt to find a chain
+    function query(qcol, qrow)
+        local qblock = self.blockmap[cr2idx(qcol, qrow)]
+        return qblock and qblock.color == block.color
+    end
+
+    local matches = 0 
+    for qx = col-2,col+2 do
+        if qx >= 0 and qx < WORLD_BLOCKS_X then
+            if query(qx, row) then
+                matches = matches + 1
+                if matches >= CHAIN_SIZE then
+                    return game:makeChain(block)
+                end
+            else
+                matches = 0
+            end
+        end
+    end
+
+    matches = 0
+    for qy = row-2,row+2 do
+        if qy >= 0 and qy < WORLD_BLOCKS_Y then
+            if query(col, qy) then
+                matches = matches + 1
+                if matches >= CHAIN_SIZE then
+                    return game:makeChain(block)
+                end
+            else
+                matches = 0
+            end
+        end
+    end
+end
+
+
+function game:makeChain(block)
+    -- Build connected graph
+    local chainset = {}
+    function chain(qcol, qrow)
+        local idx = cr2idx(qcol, qrow)
+        local qblock = self.blockmap[cr2idx(qcol, qrow)]
+        if qblock and qblock.color == block.color then
+            if not chainset[qblock] then
+                chainset[qblock] = true
+                if qcol > 0 then chain(qcol-1, qrow) end
+                if qcol < WORLD_BLOCKS_X - 1 then chain(qcol+1, qrow) end
+                if qrow > 0 then chain(qcol, qrow-1) end
+                if qrow < WORLD_BLOCKS_Y - 1 then chain(qcol, qrow+1) end
+            end
+        end
+    end
+    chain(block:getcr())
+
+    for block, v in pairs(chainset) do
+        game:queueClear(block)
+    end
+end
+
+
+
+
 
 -- 
--- Logic
+-- Update
 --
 
 
 function game:update(dt)
     time:update(dt)
+    if dt > 0 then
+        tween.update(dt)
+    end
 
     -- Prune dead entities
     remove_if(self.entities, function(entity) 
@@ -174,18 +263,6 @@ function game:update(dt)
     end
 
     player:update(dt)
-end
-
-function game:keypressed(key, unicode)
-    if input.match('debug', key) then
-        self.flags.debug = not self.flags.debug
-    end
-    if input.match('showbb', key) then
-        self.flags.showbb = not self.flags.showbb
-    end
-    if input.match('init', key) then
-        game:initWorld()
-    end
 end
 
 
@@ -232,7 +309,28 @@ function game:drawHUD()
     if self.flags.debug then
         lg.print("FPS: " .. love.timer.getFPS(), 5, 5)
         lg.print("#Timers: " .. #time.timers, 5, 15)
+        lg.print("#Tweens: " .. tween.count(), 5, 25)
         console:drawLog()
+    end
+end
+
+
+
+--
+-- Input
+--
+
+
+
+function game:keypressed(key, unicode)
+    if input.match('debug', key) then
+        self.flags.debug = not self.flags.debug
+    end
+    if input.match('showbb', key) then
+        self.flags.showbb = not self.flags.showbb
+    end
+    if input.match('init', key) then
+        game:initWorld()
     end
 end
 

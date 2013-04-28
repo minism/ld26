@@ -10,6 +10,7 @@ player.solid = false
 player.z_index = 1
 
 function player:reset()
+    self.headblock = nil
 end
 
 

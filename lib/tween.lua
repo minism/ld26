@@ -374,6 +374,10 @@ function tween.stopAll()
   tweens = {}
 end
 
+function tween.count()
+  return #tweens
+end
+
 tween.stopAll()
 
 return tween

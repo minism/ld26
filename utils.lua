@@ -5,3 +5,11 @@ function overlaps(head, tail, head2, tail2)
         return head2 < tail
     end
 end
+
+function pos2cr(x, y)
+    return math.floor(x / BLOCK_SIZE), math.floor(y / BLOCK_SIZE)
+end
+
+function cr2idx(col, row)
+    return row * WORLD_BLOCKS_X + col
+end

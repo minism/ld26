@@ -19,16 +19,52 @@ function Entity:init(data)
     self.alive = true
     self.z_index = 0
 
+    -- Animation data
+    self.anim_size = 1
+    self.anim_timer = 0
+    self.anim_frame = 0
+    self.anim_speed = 1 / 24
+
     getmetatable(Entity).init(self, data)
 end
 
-
 function Entity:update(dt)
+    self.anim_timer = self.anim_timer + dt
+    if self.anim_timer > self.anim_speed then
+        self.anim_timer = self.anim_timer - self.anim_speed
+        self.anim_frame = self.anim_frame + 1
+        if self.anim_frame >= self.anim_size then
+            self.anim_frame = 0
+            if self.anim_once then
+                self.anim_frame = self.anim_size - 1
+            end
+        end
+    end
+end
 
+function Entity:setSprite(sprite, anim_size)
+    self.sprite = sprite
+    self.anim_size = anim_size or 1
+end
+
+function Entity:getColor()
+    return colors.white
 end
 
 function Entity:draw()
+    lg.setColor(self:getColor())
 
+    if type(self.sprite) == 'number' then
+        sprite.drawSprite(self.sprite + self.anim_frame, self.x, self.y)
+    end
+end
+
+function Entity:getcr()
+    return pos2cr(self.x, self.y)
+end
+
+function Entity:getidx()
+    return cr2idx(self:getcr())
 end
 
 
@@ -53,6 +89,8 @@ function PhysEntity:getbb()
 end
 
 function PhysEntity:draw()
+    getmetatable(PhysEntity).draw(self)
+
     if game.flags.showbb then
         colors.debug()
         local l,t,r,b = self:getbb()

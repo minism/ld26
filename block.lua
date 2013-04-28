@@ -5,18 +5,32 @@ require 'math'
 Block = PhysEntity:extend()
 
 function Block:init(data)
+    self.rested = false
     self.block = true
-    self.color = 1
+    self.color = math.random(1, 2)
+    self.fade = 0
 
     getmetatable(Block).init(self, data)
+
+    self.sprite = 2
 end
 
-function Block:draw()
-    getmetatable(Block).draw(self)
-    colors['block_' .. self.color]()
-    sprite.drawSprite(1, self.x, self.y)
+function Block:update(dt)
+    getmetatable(Block).update(self, dt)
+
+    if self.grounded and self.velx == 0 and self.vely == 0 and not self.rested then
+        -- Block is rested for the first time
+        self.rested = true
+        game:blockRested(self)
+    elseif not self.grounded then
+        self.rested = false
+    end
 end
 
+function Block:getColor()
+    local clr = colors['block_' .. self.color]
+    return color.desaturate(clr, self.fade * 255)
+end
 
 function Block:collideWith(target, side)
     if target == player and side == TOP then
@@ -51,6 +65,17 @@ function BlockHint:draw()
 
     colors.white()
     if self.ts % self.flash_speed > self.flash_speed / 2 then
-        sprite.drawSprite(9, self.x, self.y)
+        sprite.drawSprite(8, self.x, self.y)
     end
+end
+
+
+BlockGlare = Entity:extend()
+
+function BlockGlare:init(data)
+    getmetatable(BlockGlare).init(self, data)
+    self.sprite = 9
+    self.anim_size = 8
+    self.anim_speed = 1 / 24
+    self.anim_once = true
 end
