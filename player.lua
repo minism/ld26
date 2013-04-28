@@ -66,6 +66,7 @@ function player:draw()
         if self.state == LIFTING then
             y = self.y - (self.anim_frame + 1) / 4 * self.h
         end
+        lg.setColor(self.holding:getColor())
         sprite.drawSprite(self.holding:spriteFrame(), x, y)
     end
 
@@ -176,6 +177,17 @@ function player:update(dt)
     end
 end
 
+function player:liftBlock(block)
+    -- self.x = block.x + (block.w - self.w) / 2
+    self.y = self.y + block.h
+    block.rested = false
+    self.holding = block
+    self.lift_timer = 0
+    self.velx = 0
+    self:setState(LIFTING)
+    game:removeEntity(block)
+end
+
 function player:setBlock()
     local block = self.holding
     self.holding = nil
@@ -189,16 +201,17 @@ function player:setBlock()
     game:addEntity(block)
 end
 
-function player:liftBlock(block)
-    -- self.x = block.x + (block.w - self.w) / 2
-    self.y = self.y + block.h
-    block.rested = false
-    self.holding = block
-    self.lift_timer = 0
-    self.velx = 0
-    self:setState(LIFTING)
-    game:removeEntity(block)
-end
+function player:throwBlock()
+    local block = self.holding
+    self.holding = nil
+    block.x = self.x - (block.w - self.w) / 2
+    block.y = self.y - block.h
 
-function player:throwBlock(block)
+    -- Throw at 45 degree angle
+    local vec = vector(0, -1)
+    local rotation = self.right and TAU / 8 or -TAU / 8
+    block.velx = vec.x * THROW_POWER
+    block.vely = vec.y * THROW_POWER
+
+    game:addEntity(block)
 end
