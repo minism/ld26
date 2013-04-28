@@ -82,6 +82,10 @@ function Entity:getcr()
     return pos2cr(self.x, self.y)
 end
 
+function Entity:getcentercr()
+    return pos2cr(self.x + self.w / 2, self.y)
+end
+
 function Entity:getidx()
     return cr2idx(self:getcr())
 end

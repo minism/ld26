@@ -160,20 +160,34 @@ function player:update(dt)
         end
     end
 
-    if input.downFrame('grab') then
+    if input.downFrame('grab') and self.state ~= LIFTING then
         if self.grounded and not self.holding then
-            local block = game:findBlocKUnder(self)
+            local block = game:findBlockUnder(self)
             if block then
                 self:liftBlock(block)
             end
+        elseif self.holding then
+            self:setBlock()
         end
     end
 end
 
+function player:setBlock()
+    local block = self.holding
+    self.holding = nil
+    local col, row = self:getcentercr()
+    col = constrain(col, 0, WORLD_BLOCKS_X-1)
+    row = constrain(row, 0, WORLD_BLOCKS_Y-1)
+    local bx, by = cr2pos(col, row)
+    block.x = bx
+    block.y = self.y
+    self.y = self.y - self.h
+    game:addEntity(block)
+end
+
 function player:liftBlock(block)
-    self.x = block.x + (block.w - self.w) / 2
+    -- self.x = block.x + (block.w - self.w) / 2
     self.y = self.y + block.h
-    -- self.h = self.h + block.h
     self.holding = block
     self.lift_timer = 0
     self.velx = 0

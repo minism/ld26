@@ -114,7 +114,7 @@ end
 -- Query
 --
 
-function game:findBlocKUnder(source)
+function game:findBlockUnder(source)
     local sl,st,sr,sb = source:getbb()
     for i, entity in ipairs(self.entities) do
         if entity.block and entity.grounded and not entity.chaining then
@@ -125,6 +125,23 @@ function game:findBlocKUnder(source)
         end
     end
 end
+
+
+-- function game:freeBlockSpace(col, row)
+--     if col >= 0 and col < WORLD_BLOCKS_X and row >= 0 and row < WORLD_BLOCKS_Y then
+--         local l,r,t,b = cr2pos(col, row)
+--         for i, entity in ipairs(self.entities) do
+--             if entity.block then
+--                 local x,y,x2,y2 = entity:getbb()
+--                 if overlaps(l+1,r,x,x2) and overlaps(t,b,y,y2) then
+--                     return false
+--                 end
+--             end
+--         end
+--         return true
+--     end
+--     return false
+-- end
 
 
 function game:getHighestBlock(column)
@@ -336,6 +353,7 @@ function game:drawHUD()
         lg.print("FPS: " .. love.timer.getFPS(), 5, 5)
         lg.print("#Timers: " .. #time.timers, 5, 15)
         lg.print("#Tweens: " .. tween.count(), 5, 25)
+        lg.print("#Entities: " .. #self.entities, 5, 35)
         console:drawLog()
     end
 end
