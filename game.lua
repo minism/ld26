@@ -41,6 +41,7 @@ require 'entity'
 require 'block'
 require 'input'
 require 'phase'
+require 'enemy'
 
 game = leaf.Context()
 
@@ -107,6 +108,7 @@ function game:initWorld()
     self:setStaticBlocks()
     self.total_clears = 0
 
+    self:addEntity(Bat())
     -- Fill with blocks for debugging
     -- local i = 0
     -- for c=0, WORLD_BLOCKS_X - 1 do
@@ -130,6 +132,7 @@ function game:setStaticBlocks()
     local static_block_top = Pusher {
         x=-BLOCK_SIZE,
         y=-BLOCK_SIZE,
+        h=BLOCK_SIZE-1,
         w=WORLD_W + BLOCK_SIZE * 2,
         awake = false,
     }
@@ -144,6 +147,7 @@ function game:setStaticBlocks()
     local static_block_left = Pusher {
         y=0,
         x=-BLOCK_SIZE,
+        w=BLOCK_SIZE-1,
         h=WORLD_H,
         awake = false,
     }

@@ -40,8 +40,8 @@ function Block:collideWith(target, side)
     end
 end
 
-function Block:collideFloor()
-    if not self._last_grounded then
+function Block:collideGeo(direction)
+    if direction == TOP and not self._last_grounded then
         game:sound('drop')
     end
 end

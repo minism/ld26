@@ -160,18 +160,21 @@ function PhysEntity:step(dt)
     if self.x >= 0 and nx < 0 then
         nx = 0
         self.velx = 0
+        self:collideGeo(LEFT)
     elseif self.x + self.w <= WORLD_W and nx + self.w > WORLD_W then
         nx = WORLD_W - self.w
         self.velx = 0
+        self:collideGeo(RIGHT)
     end
     if self.y >= 0 and ny < 0 then
         ny = 0
         self.vely = 0
+        self:collideGeo(TOP)
     elseif self.y + self.h <= WORLD_H and ny + self.h > WORLD_H then
         self.grounded = true
         ny = WORLD_H - self.h
         self.vely = 0
-        self:collideFloor()
+        self:collideGeo(BOTTOM)
     end
 
     -- Check player collision
@@ -230,7 +233,7 @@ end
 function PhysEntity:collideWith(target, side)
 end
 
-function PhysEntity:collideFloor()
+function PhysEntity:collideGeo()
 end
 
 
