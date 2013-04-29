@@ -215,11 +215,6 @@ function player:update(dt)
     end
 end
 
-function player:collideWith(target)
-    if target.enemy then
-        self:die()
-    end
-end
 
 function player:liftBlock(block, under)
     game:sound 'grab'
