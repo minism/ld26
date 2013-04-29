@@ -29,13 +29,13 @@ local clr = {
 
 phases = {
     {
-        pushrate = {5, 10},
+        pushrate = {6, 12},
         colors = clr[1],
         color_limit = 2,
     },
     {
         pushrate = {6, 12},
-        droprate = {3, 6},
+        droprate = {4, 7},
         colors = clr[1],
         color_limit = 2,
     },
@@ -46,32 +46,32 @@ phases = {
     },
 
     {
-        droprate = {1, 1.25},
+        droprate = {1, 2},
         colors = clr[2],
         color_limit = 2,
     },
     {
         droprate = {2, 4},
-        pushrate = {4, 8},
+        pushrate = {5, 10},
         bombchance = 1 / 10,
         colors = clr[2],
     },
     {
-        droprate = {1, 2},
-        pushrate = {4, 6},
-        bombchance = 1 / 14,
+        droprate = {1, 3},
+        pushrate = {5, 10},
+        bombchance = 1 / 12,
         colors = clr[2],
     },
 
     {
-        pushrate = {3, 6},
-        batrate  = {4, 9},
+        pushrate = {4, 8},
+        batrate  = {4, 8},
         colors = clr[3],
     },
     {
         droprate = {4, 6},
         pushrate = {3, 6},
-        batrate  = {3, 6.5},
+        batrate  = {3, 7},
         colors = clr[3],
         bombchance = 1 / 6,
     },
@@ -87,7 +87,7 @@ phases = {
         colors = clr[4],
     },
     {
-        droprate = {1, 3},
+        droprate = {2, 4},
         pushrate = {2, 4},
         colors = clr[4],
         bombchance = 1 / 5,
