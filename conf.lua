@@ -1,6 +1,6 @@
 function love.conf(t)
     -- Love settings
-    t.title = "s"
+    t.title = "PuzzleBot"
     t.version = "0.8.0"
     t.author = "joshbothun@gmail.com"
     t.identity = nil

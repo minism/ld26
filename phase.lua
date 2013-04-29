@@ -46,7 +46,7 @@ phases = {
     },
 
     {
-        droprate = {0.75, 1},
+        droprate = {1, 1.25},
         colors = clr[2],
         color_limit = 2,
     },
@@ -65,13 +65,13 @@ phases = {
 
     {
         pushrate = {3, 6},
-        batrate  = {3, 8},
+        batrate  = {4, 9},
         colors = clr[3],
     },
     {
         droprate = {4, 6},
         pushrate = {3, 6},
-        batrate  = {3, 6},
+        batrate  = {3, 6.5},
         colors = clr[3],
         bombchance = 1 / 6,
     },
