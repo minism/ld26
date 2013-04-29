@@ -3,7 +3,7 @@ require 'math'
 
 function randrange(t)
     local r = math.random()
-    return r * (t[2] - t[1]) + t[1]
+    return r * (t[2] - t[1]) + t[1] * GLOBAL_CURVE
 end
 
 function constrain(value, low, high)

@@ -30,6 +30,7 @@ THROW_POWER = 175
 THROW_ANGLE = TAU / 8
 ANIM_SPEED = 1 / 30
 SOUND_DEBOUNCE = 1 / 20
+GLOBAL_CURVE = 1.1
 LIFT_TIME = ANIM_SPEED * 4
 LEFT, TOP, RIGHT, BOTTOM = 0, 1, 2, 3
 
@@ -705,17 +706,17 @@ end
 
 
 function game:keypressed(key, unicode)
-    if input.match('debug', key) then
-        self.flags.debug = not self.flags.debug
-    end
-    if input.match('showbb', key) then
-        self.flags.showbb = not self.flags.showbb
-    end
-    if input.match('blockmap', key) then
-        self.flags.blockmap = not self.flags.blockmap
-    end
-    if input.match('init', key) then
-        -- game:loadPhase(1)
-    end
+    -- if input.match('debug', key) then
+    --     self.flags.debug = not self.flags.debug
+    -- end
+    -- if input.match('showbb', key) then
+    --     self.flags.showbb = not self.flags.showbb
+    -- end
+    -- if input.match('blockmap', key) then
+    --     self.flags.blockmap = not self.flags.blockmap
+    -- end
+    -- if input.match('init', key) then
+    --     -- game:loadPhase(1)
+    -- end
 end
 

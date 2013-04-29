@@ -76,7 +76,7 @@ phases = {
         bombchance = 1 / 6,
     },
     {
-        droprate = {0.5, 1},
+        droprate = {0.75, 1.5},
         batrate  = {3, 8},
         colors = clr[3],
         bombchance = 1 / 20,
@@ -101,6 +101,12 @@ phases = {
         batrate = {3, 6},
         droprate = {0.5, 0.75},
         bombchance = 1 / 16,
+        colors = clr[4]
+    },
+    {
+        -- batrate = {0.4, 0.8},
+        droprate = {0.4, 0.8},
+        bombchance = 1 / 24,
         colors = clr[4]
     },
 
