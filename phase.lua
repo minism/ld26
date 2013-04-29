@@ -24,6 +24,13 @@ local clr = {
         {158, 0, 244},
         bg={61,4,89},
     },
+    {
+        {36, 182, 255},
+        {255, 54, 87},
+        {70, 255, 54},
+        {192, 210, 219},
+        bg={255,255,255},
+    },
 }
 
 
@@ -87,8 +94,8 @@ phases = {
         colors = clr[4],
     },
     {
-        droprate = {2, 4},
-        pushrate = {2, 4},
+        droprate = {2, 4.5},
+        pushrate = {2, 4.5},
         colors = clr[4],
         bombchance = 1 / 5,
     },
@@ -111,14 +118,13 @@ phases = {
     },
 
 
-
     -- Infinite level
     {
         batrate = {3, 6},
-        droprate = {1, 3},
+        droprate = {2, 4},
         pushrate = {2, 4},
-        bombchance = 1 / 10,
-        colors = clr[1],
+        bombchance = 1 / 16,
+        colors = clr[5],
     }
 }
 
