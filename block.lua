@@ -14,10 +14,12 @@ function Block:init(data)
     getmetatable(Block).init(self, data)
 
     self.sprite = 3
+    self.throw_timer = 0
 end
 
 function Block:update(dt)
     getmetatable(Block).update(self, dt)
+    self.throw_timer = self.throw_timer - dt
 
     if self.grounded and self.velx == 0 and self.vely == 0 and not self.rested then
         -- Block is rested for the first time

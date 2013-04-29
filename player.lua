@@ -255,6 +255,7 @@ function player:throwBlock()
     end
     block.y = self.y - block.h
     block.thrown = true
+    block.throw_timer = 0.1
 
     -- Throw at 45 degree angle
     local vec = vector(0, -1)

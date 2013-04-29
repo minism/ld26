@@ -219,12 +219,16 @@ function PhysEntity:projectCollision(nx, ny, entity)
             self:collideWith(entity, TOP)
             ncollide = false
         elseif self.y >= b and ny < b then
-            if entity.solid then
-                ny = b
-                self.vely = 0
+            if entity.block and self.block and self.throw_timer > 0 then
+                --nop
+            else
+                if entity.solid then
+                    ny = b
+                    self.vely = 0
+                end
+                self:collideWith(entity, BOTTOM)
+                ncollide = false
             end
-            self:collideWith(entity, BOTTOM)
-            ncollide = false
         end
     end
 
