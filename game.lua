@@ -16,7 +16,7 @@ HUD_DIMENSIONS = {0, -2, 8, -2, true}
 SCREEN_W = REAL_W / CAMERA_SCALE
 SCREEN_H = REAL_H / CAMERA_SCALE
 BLOCK_TIMER = 0.8
-LIVES = 4
+LIVES = 100
 BASE_CLEARS = 25
 CHAIN_TIME = 0.5
 CHAIN_SIZE = 3
@@ -24,6 +24,7 @@ GRAVITY = 575
 MOVE_SPEED = 60
 JUMP_POWER = 225
 JUMP_TIME = 10 / 60
+INVINCIBLE_TIME = 0.4
 BATLIMIT = 5
 THROW_POWER = 175
 THROW_ANGLE = TAU / 8
@@ -154,6 +155,10 @@ end
 -- Query
 --
 
+function game:columnFull(col)
+    return self.blockmap[cr2idx(col, 0)]
+end
+
 function game:findBlockDir(source, direction)
     local sl,st,sr,sb = source:getbb()
     for i, entity in ipairs(self.entities) do
@@ -216,6 +221,7 @@ function game:respawn()
     local center = math.floor(WORLD_BLOCKS_X / 2)
     -- for i=0, WORLD_BLOCKS_X do
     player.x, player.y = cr2pos(center, 0)
+    player.invincible = INVINCIBLE_TIME
 end
 
 
@@ -280,57 +286,60 @@ function game:pushColumns()
     last_color = nil
     color_count = 1
     for col=0, WORLD_BLOCKS_X - 1 do
+        if not self:columnFull(col) then
 
-        local color = game:randomColor()
-        if color == last_color then
-            color_count = color_count + 1
-            if color_count >= 3 then
-                color_count = 1
-                color = (color % (self.phase.color_limit or #self.phase.colors)) + 1
+            local color = game:randomColor()
+            if color == last_color then
+                color_count = color_count + 1
+                if color_count >= 3 then
+                    color_count = 1
+                    color = (color % (self.phase.color_limit or #self.phase.colors)) + 1
+                end
             end
-        end
-        last_color = color
+            last_color = color
 
-        local x, y = cr2pos(col, WORLD_BLOCKS_Y - 1)
-        local block = Block { x = x, y = y, color=color }
-        block.grounded = true
-        block.rested = true
-        self:addEntity(block)
+            local x, y = cr2pos(col, WORLD_BLOCKS_Y - 1)
+            local block = Block { x = x, y = y, color=color }
+            block.grounded = true
+            block.rested = true
+            self:addEntity(block)
 
-        local highest_grounded = nil
-        for i, entity in ipairs(self.entities) do
-            local c, r = entity:getcr()
-            if c == col then
-                if entity.grounded then
-                    if not highest_grounded or entity.y < highest_grounded.y then
-                        highest_grounded = entity
-                    end
+            local highest_grounded = nil
+            for i, entity in ipairs(self.entities) do
+                local c, r = entity:getcr()
+                if c == col then
+                    if entity.grounded then
+                        if not highest_grounded or entity.y < highest_grounded.y then
+                            highest_grounded = entity
+                        end
 
-                    if entity ~= block then
-                        entity.y = entity.y - BLOCK_SIZE 
+                        if entity ~= block then
+                            entity.y = entity.y - BLOCK_SIZE 
+                        end
                     end
                 end
             end
-        end
 
-        for i, entity in ipairs(self.entities) do
-            if entity.awake and not entity.grounded and entity.solid then
-                local a,b,c,d = entity:getbb()
-                local w,x,y,z = highest_grounded:getbb()
-                if rect.intersects(a,b,c,d,w,x,y,z) then
-                    entity.y = highest_grounded.y - entity.h
+            for i, entity in ipairs(self.entities) do
+                if entity.awake and not entity.grounded and entity.solid then
+                    local a,b,c,d = entity:getbb()
+                    local w,x,y,z = highest_grounded:getbb()
+                    if rect.intersects(a,b,c,d,w,x,y,z) then
+                        entity.y = highest_grounded.y - entity.h
+                    end
                 end
             end
-        end
 
-        if player:getcr() == col then
-            if player.grounded then
-                player.y = player.y - BLOCK_SIZE
-            elseif highest_grounded then
-                local a,b,c,d = player:getbb()
-                local w,x,y,z = highest_grounded:getbb()
-                if rect.intersects(a,b,c,d,w,x,y,z) then
-                    player.y = highest_grounded.y - player.h
+            local pc, pr = player:getcr()
+            if pc == col then
+                if player.grounded then
+                    player.y = player.y - BLOCK_SIZE
+                elseif highest_grounded then
+                    local a,b,c,d = player:getbb()
+                    local w,x,y,z = highest_grounded:getbb()
+                    if rect.intersects(a,b,c,d,w,x,y,z) then
+                        player.y = highest_grounded.y - player.h
+                    end
                 end
             end
         end
@@ -348,49 +357,68 @@ function game:pushColumns()
             game:blockRested(entity)
         end
     end
+
+    local pc, pr = player:getcr()
+    if pr == 0 and self.blockmap[cr2idx(pc, pr)] then
+        player:die()
+    end
 end
 
 
 function game:queueDrop(data)
     local data = data or {}
-    local pos = data.pos or math.random(0, WORLD_BLOCKS_X - 1)
-    local x = BLOCK_SIZE * pos
-
-    -- Create block hitn 
-    local highest_block = game:getHighestBlock(pos)
-    local hint_y = highest_block and highest_block.y - BLOCK_SIZE or WORLD_H - BLOCK_SIZE
-    local blockHint = BlockHint {
-        life = BLOCK_TIMER,
-        x = x,
-        y = hint_y,
-    }
-    self:addEntity(blockHint)
-
-    local block = nil
-    if self.phase.bombchance and math.random() < self.phase.bombchance then
-        block = Bomb {
-            x=x, y=0
-        }
-    else
-        block = Block {
-            x = x,
-            y = 0,
-        }
+    local all_full = false
+    for col=0, WORLD_BLOCKS_X-1 do
+        if not self:columnFull(col) then
+            break
+        end
+        all_full = true
     end
 
-    -- Queue block
-    time:after(BLOCK_TIMER, function() 
-        self:addEntity(block)
-    end)
+    if not all_full then
+        local pos = nil
+        while not pos or self:columnFull(pos) do
+            pos = data.pos or math.random(0, WORLD_BLOCKS_X - 1)
+        end
 
+        local x = BLOCK_SIZE * pos
 
-    local queue_phase = self.phasen
-    if self.phase.droprate then
-        time:after(randrange(self.phase.droprate), function()
-            if self.phasen == queue_phase then
-                self:queueDrop()
-            end
+        -- Create block hint
+        local highest_block = game:getHighestBlock(pos)
+        local hint_y = highest_block and highest_block.y - BLOCK_SIZE or WORLD_H - BLOCK_SIZE
+        local blockHint = BlockHint {
+            life = BLOCK_TIMER,
+            x = x,
+            y = hint_y,
+        }
+        self:addEntity(blockHint)
+
+        local block = nil
+        if self.phase.bombchance and math.random() < self.phase.bombchance then
+            block = Bomb {
+                x=x, y=0
+            }
+        else
+            block = Block {
+                x = x,
+                y = 0,
+            }
+        end
+
+        -- Queue block
+        time:after(BLOCK_TIMER, function() 
+            self:addEntity(block)
         end)
+
+
+        local queue_phase = self.phasen
+        if self.phase.droprate then
+            time:after(randrange(self.phase.droprate), function()
+                if self.phasen == queue_phase then
+                    self:queueDrop()
+                end
+            end)
+        end
     end
 end
 

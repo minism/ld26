@@ -11,6 +11,7 @@ player.z_index = 1
 player.lift_timer = 0
 player.jump_timer = 0
 player.jump_fuel = 1.0
+player.invincible = 0
 
 local IDLE, RUN, CARRY_IDLE, CARRY_RUN, LIFTING = 0, 1, 2, 3, 4
 
@@ -56,25 +57,29 @@ end
 
 
 function player:draw()
-    lg.setColor(self:getColor())
-    if type(self.sprite) == 'number' then
-        sprite.drawSprite(self:spriteFrame(), self:getDrawParams())
-    end
-
-    if self.holding then
-        local x = self.x - (self.holding.w - self.w) / 2
-        local y = self.y - self.h
-        if self.state == LIFTING then
-            y = self.y - (self.anim_frame + 1) / 4 * self.h
+    if self.invincible > 0 and game.ts % 0.1 < 0.05 then
+        -- nop
+    else
+        lg.setColor(self:getColor())
+        if type(self.sprite) == 'number' then
+            sprite.drawSprite(self:spriteFrame(), self:getDrawParams())
         end
-        lg.setColor(self.holding:getColor())
-        sprite.drawSprite(self.holding:spriteFrame(), x, y)
-    end
 
-    if game.flags.showbb then
-        colors.debug()
-        local l,t,r,b = self:getbb_block()
-        love.graphics.rectangle('line', l, t, r-l, b-t)
+        if self.holding then
+            local x = self.x - (self.holding.w - self.w) / 2
+            local y = self.y - self.h
+            if self.state == LIFTING then
+                y = self.y - (self.anim_frame + 1) / 4 * self.h
+            end
+            lg.setColor(self.holding:getColor())
+            sprite.drawSprite(self.holding:spriteFrame(), x, y)
+        end
+
+        if game.flags.showbb then
+            colors.debug()
+            local l,t,r,b = self:getbb_block()
+            love.graphics.rectangle('line', l, t, r-l, b-t)
+        end
     end
 end
 
@@ -145,6 +150,7 @@ end
 
 function player:update(dt)
     getmetatable(player).update(self, dt)
+    self.invincible = self.invincible - dt
 
     if self.state == LIFTING then
         if self.anim_frame == 4 then
@@ -197,9 +203,15 @@ function player:update(dt)
             local a,b,c,d = self:getbb()
             local w,x,y,z = entity:getbb()
             if rect.intersects(a,b,c,d,w,x,y,z) then
-                self:die()
+                if self.invincible <= 0 then
+                    self:die()
+                end
             end
         end
+    end
+
+    if self.y + self.h <= 0 then
+        self:die()
     end
 end
 
